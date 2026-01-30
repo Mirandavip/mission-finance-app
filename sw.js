@@ -1,4 +1,4 @@
-const CACHE_NAME = 'admira-system-v4'; // Atualizado para v4 (Força limpeza de cache)
+const CACHE_NAME = 'admira-system-v5'; // Atualizado para v4 (Força limpeza de cache)
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -49,3 +49,4 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
+
