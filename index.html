@@ -7,12 +7,12 @@
     
     <!-- Configurações de PWA (App) -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0F3555"> <!-- Azul Marinho Admira -->
+    <meta name="theme-color" content="#0F3555">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Admira Mission Finance">
-    <link rel="apple-touch-icon" href="rocket_logo.png">
-    <link rel="icon" type="image/png" href="rocket_logo.png">
+    <link rel="apple-touch-icon" href="Logo Mission Finance icone.png">
+    <link rel="icon" type="image/png" href="Logo Mission Finance icone.png">
 
     <!-- React e Tailwind -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -22,21 +22,19 @@
     
     <style>
         body { 
-            background-color: #05121d; /* Versão muito escura do Azul Marinho para contraste */
+            background-color: #05121d;
             color: #e2e8f0; 
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             overscroll-behavior-y: none;
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* Neon Laranja (Identidade Admira) */
         .neon-text-orange { text-shadow: 0 0 5px rgba(245, 148, 37, 0.6); }
         .neon-box { 
             box-shadow: 0 0 15px rgba(245, 148, 37, 0.1); 
             border: 1px solid rgba(15, 53, 85, 0.5); 
         }
         
-        /* Inputs Dark */
         input, select {
             background-color: #0F3555; 
             color: white;
@@ -48,11 +46,7 @@
             box-shadow: 0 0 8px rgba(245, 148, 37, 0.3);
         }
         
-        .custom-checkbox {
-            accent-color: #F59425;
-            width: 16px;
-            height: 16px;
-        }
+        .custom-checkbox { accent-color: #F59425; width: 16px; height: 16px; }
 
         .fade-in { animation: fadeIn 0.3s ease-in; }
         .animate-pop { animation: fadeIn 0.2s ease-out; }
@@ -63,12 +57,9 @@
             body { background: white; color: black; }
             .shadow-xl, .neon-box { box-shadow: none !important; border: 1px solid #ddd !important; }
             input, select { background-color: white; color: black; border: 1px solid #ddd; }
-            
-            /* Ajustes de cor para impressão do logo */
             .print\:text-black { color: black !important; text-shadow: none !important; }
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #05121d; }
         ::-webkit-scrollbar-thumb { background: #0F3555; border-radius: 4px; }
@@ -79,10 +70,35 @@
 
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script type="text/babel" data-type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         const { useState, useEffect } = React;
 
-        // Ícones
+        // --- 🚀 CONFIGURAÇÃO FIREBASE (BANCO DE DADOS NA NUVEM) ---
+        const isCanvas = typeof __firebase_config !== 'undefined';
+        
+        // CHAVES OFICIAIS DO SEU PROJETO FIREBASE (ADMIRA MISSION FINANCE)
+        const prodConfig = {
+            apiKey: "AIzaSyA0OX7tmHEa-XiNxj1pQrHI4UG_8PgZiiE",
+            authDomain: "admira-mission-finance.firebaseapp.com",
+            projectId: "admira-mission-finance",
+            storageBucket: "admira-mission-finance.firebasestorage.app",
+            messagingSenderId: "197646588906",
+            appId: "1:197646588906:web:410ec395b759c4ae9e7093",
+            measurementId: "G-PCNGKHZ0SX"
+        };
+        
+        const firebaseConfig = isCanvas ? JSON.parse(__firebase_config) : prodConfig;
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = isCanvas ? __app_id : 'admira-mission-finance';
+
+        // Ícones SVG
         const Icons = {
             TrendingUp: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>,
             DollarSign: ({size=20}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>,
@@ -106,7 +122,6 @@
             X: ({size=24, className=""}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         };
 
-        // Tooltip Component
         const Tooltip = ({ content }) => {
             const [show, setShow] = useState(false);
             return (
@@ -131,100 +146,163 @@
         }
 
         function App() {
+            // --- ESTADOS DE AUTENTICAÇÃO ---
+            const [user, setUser] = useState(null);
+            const [isLoginMode, setIsLoginMode] = useState(true);
+            const [authEmail, setAuthEmail] = useState('');
+            const [authPassword, setAuthPassword] = useState('');
+            const [isAuthLoading, setIsAuthLoading] = useState(false);
+
+            // --- ESTADOS DA APLICAÇÃO ---
             const [activeTab, setActiveTab] = useState('caixa');
             const [alertConfig, setAlertConfig] = useState(null);
             const [isHelpOpen, setIsHelpOpen] = useState(false); 
+            const [transactions, setTransactions] = useState([]); 
+
+            // Mantém a sessão ativa
+            useEffect(() => {
+                if (isCanvas) return; 
+                const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+                    if (firebaseUser) setUser(firebaseUser);
+                });
+                return () => unsubscribe();
+            }, []);
+
+            // Motor do Login
+            const handleAuth = async (e) => {
+                e.preventDefault();
+                setIsAuthLoading(true);
+                try {
+                    if (isCanvas) {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                        setUser({ uid: auth.currentUser?.uid || Date.now().toString(), email: authEmail });
+                    } else {
+                        if (isLoginMode) {
+                            const cred = await signInWithEmailAndPassword(auth, authEmail, authPassword);
+                            setUser(cred.user);
+                        } else {
+                            const cred = await createUserWithEmailAndPassword(auth, authEmail, authPassword);
+                            setUser(cred.user);
+                        }
+                    }
+                } catch (error) {
+                    console.error(error);
+                    if (error.code === 'auth/email-already-in-use') {
+                        showAlert('Este e-mail já está cadastrado. Tente fazer login.');
+                    } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                        showAlert('E-mail ou senha incorretos.');
+                    } else {
+                        showAlert('Erro: ' + error.message);
+                    }
+                } finally {
+                    setIsAuthLoading(false);
+                }
+            };
+
+            const handleLogout = async () => {
+                await signOut(auth);
+                setUser(null);
+                setTransactions([]); 
+            };
+
+            // --- SINCRONIZAÇÃO COM A NUVEM ---
+            useEffect(() => {
+                if (!user) return;
+                const dbPath = isCanvas
+                    ? collection(db, 'artifacts', appId, 'users', user.uid, 'transactions')
+                    : collection(db, 'users', user.uid, 'transactions');
+
+                const unsubscribe = onSnapshot(dbPath, (snapshot) => {
+                    const data = [];
+                    snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+                    setTransactions(data);
+                }, (error) => {
+                    console.error("Erro no Banco de Dados:", error);
+                    showAlert("Erro ao sincronizar dados com a nuvem.");
+                });
+
+                return () => unsubscribe();
+            }, [user]);
+
+            const saveTransactionToCloud = async (transaction) => {
+                if (!user) return;
+                const docPath = isCanvas
+                    ? doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', transaction.id.toString())
+                    : doc(db, 'users', user.uid, 'transactions', transaction.id.toString());
+                await setDoc(docPath, transaction);
+            };
+
+            const deleteTransactionFromCloud = async (id) => {
+                if (!user) return;
+                const docPath = isCanvas
+                    ? doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', id.toString())
+                    : doc(db, 'users', user.uid, 'transactions', id.toString());
+                await deleteDoc(docPath);
+            };
 
             // --- HELPERS PARA ALERTAS ---
             const showConfirm = (msg, action) => setAlertConfig({ type: 'confirm', message: msg, onConfirm: action });
+            const showAlert = (msg) => setAlertConfig({ type: 'alert', message: msg });
             const closeAlert = () => setAlertConfig(null);
 
-            // --- FLUXO DE CAIXA ---
-            const [transactions, setTransactions] = useState(() => {
-                const saved = localStorage.getItem('financas_app_transactions');
-                return saved ? JSON.parse(saved) : [
-                    { id: 1, description: 'Exemplo: Venda Inicial', amount: 150.00, type: 'entrada', category: 'Vendas', date: new Date().toISOString().split('T')[0], status: 'pago' },
-                ];
-            });
-            
-            useEffect(() => {
-                localStorage.setItem('financas_app_transactions', JSON.stringify(transactions));
-            }, [transactions]);
-
+            // --- ESTADOS DO FORMULÁRIO DE LANÇAMENTO ---
             const [newDesc, setNewDesc] = useState('');
             const [newAmount, setNewAmount] = useState('');
             const [newType, setNewType] = useState('entrada');
-            const [newStatus, setNewStatus] = useState('pago'); // pago ou agendado
+            const [newStatus, setNewStatus] = useState('pago');
+            const [newCategory, setNewCategory] = useState('Caixa da Empresa');
             const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
             
-            // Estado para parcelamento
             const [isInstallment, setIsInstallment] = useState(false);
             const [installments, setInstallments] = useState(2);
 
-            // Filtros de Relatório
-            const [periodOption, setPeriodOption] = useState('current_month'); // Default para mês atual
+            const [periodOption, setPeriodOption] = useState('current_month');
             const [filterStart, setFilterStart] = useState('');
             const [filterEnd, setFilterEnd] = useState('');
             const [filterType, setFilterType] = useState('todos');
-            const [selectedMonth, setSelectedMonth] = useState('');
 
-            // Efeito para definir as datas iniciais do filtro com base no padrão
             useEffect(() => {
                 handlePeriodChange({ target: { value: 'current_month' } });
             }, []);
 
-            // Cálculos Totais (Realizado)
-            const totalEntradas = transactions.filter(t => t.type === 'entrada' && t.status === 'pago').reduce((acc, curr) => acc + curr.amount, 0);
-            const totalSaidas = transactions.filter(t => t.type === 'saida' && t.status === 'pago').reduce((acc, curr) => acc + curr.amount, 0);
+            const totalEntradas = transactions.filter(t => t.type === 'entrada' && t.status === 'pago').reduce((acc, curr) => acc + Number(curr.amount), 0);
+            const totalSaidas = transactions.filter(t => t.type === 'saida' && t.status === 'pago').reduce((acc, curr) => acc + Number(curr.amount), 0);
             const saldo = totalEntradas - totalSaidas;
 
-            // Cálculos Totais Globais (Previsão de tudo)
-            const totalEntradasPrev = transactions.filter(t => t.type === 'entrada').reduce((acc, curr) => acc + curr.amount, 0);
-            const totalSaidasPrev = transactions.filter(t => t.type === 'saida').reduce((acc, curr) => acc + curr.amount, 0);
+            const totalEntradasPrev = transactions.filter(t => t.type === 'entrada').reduce((acc, curr) => acc + Number(curr.amount), 0);
+            const totalSaidasPrev = transactions.filter(t => t.type === 'saida').reduce((acc, curr) => acc + Number(curr.amount), 0);
             const saldoPrevistoTotal = totalEntradasPrev - totalSaidasPrev;
 
-            // --- CÁLCULOS DO MÊS ATUAL (Realizado) ---
             const getCurrentMonthBalance = () => {
                 const now = new Date();
                 const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                
-                const monthTransactions = transactions.filter(t => 
-                    t.date.startsWith(currentMonthStr) && t.status === 'pago'
-                );
-
-                const income = monthTransactions.filter(t => t.type === 'entrada').reduce((acc, t) => acc + t.amount, 0);
-                const expense = monthTransactions.filter(t => t.type === 'saida').reduce((acc, t) => acc + t.amount, 0);
-                
+                const monthTransactions = transactions.filter(t => t.date.startsWith(currentMonthStr) && t.status === 'pago');
+                const income = monthTransactions.filter(t => t.type === 'entrada').reduce((acc, t) => acc + Number(t.amount), 0);
+                const expense = monthTransactions.filter(t => t.type === 'saida').reduce((acc, t) => acc + Number(t.amount), 0);
                 return income - expense;
             };
             const saldoMesAtual = getCurrentMonthBalance();
 
-             // --- CÁLCULOS DO MÊS ATUAL (Previsto) ---
             const getCurrentMonthForecast = () => {
                 const now = new Date();
                 const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                
-                // Filtra todas as transações do mês (independente de status)
-                const monthTransactions = transactions.filter(t => 
-                    t.date.startsWith(currentMonthStr)
-                );
-
-                const income = monthTransactions.filter(t => t.type === 'entrada').reduce((acc, t) => acc + t.amount, 0);
-                const expense = monthTransactions.filter(t => t.type === 'saida').reduce((acc, t) => acc + t.amount, 0);
-                
+                const monthTransactions = transactions.filter(t => t.date.startsWith(currentMonthStr));
+                const income = monthTransactions.filter(t => t.type === 'entrada').reduce((acc, t) => acc + Number(t.amount), 0);
+                const expense = monthTransactions.filter(t => t.type === 'saida').reduce((acc, t) => acc + Number(t.amount), 0);
                 return income - expense;
             };
             const saldoPrevistoMesAtual = getCurrentMonthForecast();
 
-
             const addTransaction = () => {
                 if (!newDesc || !newAmount) return;
                 const baseAmount = parseFloat(newAmount);
-                const newTransactionsList = [];
 
                 if (isInstallment && installments > 1) {
                     const [year, month, day] = newDate.split('-').map(Number);
-                    
                     for (let i = 0; i < installments; i++) {
                         const currentMonthIndex = month - 1 + i;
                         const targetYear = year + Math.floor(currentMonthIndex / 12);
@@ -233,56 +311,90 @@
                         const targetDay = Math.min(day, daysInMonth);
                         const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(targetDay).padStart(2, '0')}`;
                         
-                        newTransactionsList.push({
-                            id: Date.now() + i,
+                        saveTransactionToCloud({
+                            id: (Date.now() + i).toString(),
                             description: `${newDesc} (${i + 1}/${installments})`,
                             amount: baseAmount, 
                             type: newType,
                             status: i === 0 ? newStatus : 'agendado', 
-                            category: 'Geral',
+                            category: newCategory,
                             date: dateStr
                         });
                     }
                 } else {
-                    newTransactionsList.push({
-                        id: Date.now(),
+                    saveTransactionToCloud({
+                        id: Date.now().toString(),
                         description: newDesc,
                         amount: baseAmount,
                         type: newType,
                         status: newStatus,
-                        category: 'Geral',
+                        category: newCategory,
                         date: newDate
                     });
                 }
 
-                setTransactions([...newTransactionsList, ...transactions]);
                 setNewDesc('');
                 setNewAmount('');
+                setNewCategory('Caixa da Empresa');
                 setIsInstallment(false);
                 setInstallments(2);
             };
 
             const removeTransaction = (id) => {
                 showConfirm('Tem certeza que deseja excluir este lançamento?', () => {
-                    setTransactions(transactions.filter(t => t.id !== id));
+                    deleteTransactionFromCloud(id);
                 });
             };
 
             const toggleStatus = (id) => {
-                setTransactions(transactions.map(t => 
-                    t.id === id ? { ...t, status: t.status === 'pago' ? 'agendado' : 'pago' } : t
-                ));
+                const transaction = transactions.find(t => t.id === id);
+                if(transaction) {
+                    saveTransactionToCloud({ ...transaction, status: transaction.status === 'pago' ? 'agendado' : 'pago' });
+                }
+            };
+
+            const handleExportBackup = () => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transactions));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", `mission_finance_backup_${new Date().toISOString().split('T')[0]}.json`);
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                showAlert("Backup exportado com sucesso! Guarde este arquivo em segurança.");
+            };
+
+            const handleImportBackup = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        if (Array.isArray(importedData)) {
+                            showConfirm("Isso vai enviar todos os dados do backup para a nuvem. Tem certeza?", () => {
+                                importedData.forEach(tx => saveTransactionToCloud(tx));
+                                showAlert("Dados restaurados para a nuvem com sucesso!");
+                            });
+                        } else {
+                            showAlert("Arquivo de backup inválido.");
+                        }
+                    } catch (err) {
+                        showAlert("Erro ao ler o arquivo. Certifique-se de que é um backup válido.");
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
             };
 
             const handlePeriodChange = (e) => {
-                const option = e.target ? e.target.value : e; // Suporta chamada direta ou evento
+                const option = e.target ? e.target.value : e; 
                 setPeriodOption(option);
                 
                 const today = new Date();
                 let start = '';
                 let end = '';
 
-                // Ajuste de fuso horário para garantir datas locais corretas
                 const toLocalISO = (date) => {
                     const offset = date.getTimezoneOffset();
                     return new Date(date.getTime() - (offset*60*1000)).toISOString().split('T')[0];
@@ -328,20 +440,19 @@
             };
 
             const filteredData = getFilteredTransactions();
-            const filteredEntradas = filteredData.filter(t => t.type === 'entrada').reduce((acc, curr) => acc + curr.amount, 0);
-            const filteredSaidas = filteredData.filter(t => t.type === 'saida').reduce((acc, curr) => acc + curr.amount, 0);
+            const filteredEntradas = filteredData.filter(t => t.type === 'entrada').reduce((acc, curr) => acc + Number(curr.amount), 0);
+            const filteredSaidas = filteredData.filter(t => t.type === 'saida').reduce((acc, curr) => acc + Number(curr.amount), 0);
             const filteredSaldo = filteredEntradas - filteredSaidas;
 
             const exportToCSV = () => {
-                const headers = ["Data", "Descrição", "Tipo", "Status", "Valor (R$)"];
+                const headers = ["Data", "Descrição", "Conta Alocação", "Tipo", "Status", "Valor (R$)"];
                 const rows = filteredData.map(t => {
-                    let val = t.amount;
-                    if (t.type === 'saida') {
-                        val = -val;
-                    }
+                    let val = Number(t.amount);
+                    if (t.type === 'saida') val = -val;
                     return [
                         formatDate(t.date),
                         t.description,
+                        t.category || 'Geral',
                         t.type,
                         t.status,
                         val.toFixed(2).replace('.', ',')
@@ -361,21 +472,6 @@
                 if (!dateString) return '-';
                 const [year, month, day] = dateString.split('-');
                 return `${day}/${month}/${year}`;
-            };
-
-            // Helpers para Mês (CORRIGIDO PARA MOSTRAR HISTÓRICO MAIOR)
-            const getMonthOptions = () => {
-                const options = [];
-                const today = new Date();
-                // Mostra 36 meses antes (3 anos) e 12 meses depois
-                for (let i = -36; i <= 12; i++) { 
-                    const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
-                    const label = d.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
-                    // Format YYYY-MM
-                    const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                    options.push({ label: label.charAt(0).toUpperCase() + label.slice(1), value: val });
-                }
-                return options;
             };
 
             // --- CALCULADORA DE PREÇO JUSTO ---
@@ -402,18 +498,97 @@
             const minDivisor = (100 - totalVariablePercent) / 100;
             const minPrice = minDivisor > 0 ? totalBaseCost / minDivisor : 0;
 
+            // ========================================================================
+            // TELA DE LOGIN (COM A SUA LOGO)
+            // ========================================================================
+            if (!user) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center px-4 bg-[#05121d] relative overflow-hidden">
+                        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#F59425] rounded-full mix-blend-multiply filter blur-[128px] opacity-10"></div>
+                        <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-cyan-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-10"></div>
+
+                        <div className="w-full max-w-md bg-[#0F3555]/80 backdrop-blur-xl p-8 rounded-2xl border border-[#F59425]/30 shadow-[0_0_40px_rgba(245,148,37,0.15)] z-10 animate-pop">
+                            <div className="flex flex-col items-center mb-8">
+                                
+                                {/* SUA LOGO AQUI */}
+                                <div className="w-24 h-24 bg-[#05121d] rounded-full flex items-center justify-center border-2 border-[#F59425]/50 shadow-[0_0_20px_rgba(245,148,37,0.4)] mb-4 overflow-hidden p-2">
+                                    <img 
+                                        src="rocket_logo.png" 
+                                        alt="rocket_logo Icon" 
+                                        className="w-full h-full object-contain"
+                                        onError={(e) => { 
+                                            e.target.onerror = null; 
+                                            e.target.style.display = 'none'; 
+                                            e.target.nextSibling.style.display = 'block'; 
+                                        }} 
+                                    />
+                                    {/* Fallback caso a imagem não carregue */}
+                                    <Icons.Rocket size={40} className="text-[#F59425] hidden" />
+                                </div>
+                                
+                                <h1 className="text-3xl font-bold text-white tracking-tight flex items-baseline">
+                                    Ad<span className="text-[#F59425] neon-text-orange">mira</span>
+                                </h1>
+                                <p className="text-slate-400 text-sm tracking-widest uppercase mt-1 font-bold">Mission Finance</p>
+                            </div>
+
+                            <form onSubmit={handleAuth} className="space-y-5">
+                                <div>
+                                    <label className="text-xs text-slate-400 uppercase font-bold mb-1 block">E-mail de Acesso</label>
+                                    <input type="email" required className="w-full p-3 rounded-lg bg-[#05121d] border border-slate-600 text-white focus:border-[#F59425] transition-colors shadow-inner" placeholder="seu@email.com" value={authEmail} onChange={e => setAuthEmail(e.target.value)} />
+                                </div>
+                                <div>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <label className="text-xs text-slate-400 uppercase font-bold">Senha</label>
+                                        {isLoginMode && <a href="#" className="text-xs text-[#F59425] hover:text-orange-400 underline">Esqueceu a senha?</a>}
+                                    </div>
+                                    <input type="password" required className="w-full p-3 rounded-lg bg-[#05121d] border border-slate-600 text-white focus:border-[#F59425] transition-colors shadow-inner" placeholder="••••••••" value={authPassword} onChange={e => setAuthPassword(e.target.value)} />
+                                </div>
+
+                                <button type="submit" disabled={isAuthLoading} className="w-full bg-[#F59425] text-white p-3 rounded-lg font-bold uppercase tracking-wider hover:bg-orange-600 transition-all shadow-[0_0_15px_rgba(245,148,37,0.4)] disabled:opacity-50 flex justify-center items-center gap-2 mt-2">
+                                    {isAuthLoading ? <Icons.Repeat size={20} className="animate-spin" /> : (isLoginMode ? 'Entrar no Sistema' : 'Ativar Minha Conta')}
+                                </button>
+                            </form>
+
+                            <div className="mt-6 text-center text-sm text-slate-400">
+                                {isLoginMode ? (
+                                    <p>Ainda não tem acesso? <button type="button" onClick={() => setIsLoginMode(false)} className="text-[#F59425] font-bold hover:underline">Assine agora</button></p>
+                                ) : (
+                                    <p>Já tem uma assinatura? <button type="button" onClick={() => setIsLoginMode(true)} className="text-[#F59425] font-bold hover:underline">Fazer login</button></p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ========================================================================
+            // DASHBOARD PRINCIPAL (Mostrado após o Login)
+            // ========================================================================
             return (
                 <div className="max-w-5xl mx-auto my-4 bg-[#0F3555] rounded-xl shadow-2xl overflow-hidden border border-[#0F3555] print:shadow-none print:border-none print:my-0 print:w-full min-h-[90vh]">
                     
                     {/* Header */}
                     <div className="bg-[#0F3555]/50 backdrop-blur border-b border-[#F59425]/20 p-6 flex justify-between items-center print:bg-white print:text-black">
                         <div>
-                            <h1 className="text-2xl font-bold flex items-center gap-2 text-white select-none print:text-black">
-                                <Icons.TrendingUp className="print:hidden" /> 
-                                <div className="flex items-center">
-                                    <span className="text-white print:text-black">Ad</span>
-                                    <span className="text-[#F59425] neon-text-orange print:text-black print:shadow-none">mira</span>
-                                    <span className="text-white ml-2 print:text-black">Mission Finance</span>
+                            <h1 className="text-2xl font-bold flex items-center gap-3 text-white select-none print:text-black">
+                                
+                                {/* LOGO NO CABEÇALHO */}
+                                <img 
+                                    src="Logo Mission Finance icone.png" 
+                                    alt="Logo" 
+                                    className="w-10 h-10 object-contain print:hidden drop-shadow-[0_0_8px_rgba(245,148,37,0.5)]"
+                                    onError={(e) => { 
+                                        e.target.onerror = null; 
+                                        e.target.style.display = 'none'; 
+                                        e.target.nextSibling.style.display = 'block'; 
+                                    }} 
+                                />
+                                <Icons.TrendingUp className="print:hidden hidden text-[#F59425]" />
+                                
+                                <div className="flex items-baseline">
+                                    <span className="text-white tracking-tight print:text-black">Ad<span className="text-[#F59425] neon-text-orange print:text-black print:shadow-none">mira</span></span>
+                                    <span className="text-white ml-2 print:text-black hidden md:inline-block">Mission Finance</span>
                                 </div>
                             </h1>
                             <h1 className="hidden print:block text-2xl font-bold text-black mb-1">
@@ -423,11 +598,19 @@
                         </div>
                         <div className="flex items-center gap-4">
                             <button 
+                                onClick={() => showConfirm("Deseja realmente sair da sua conta?", handleLogout)}
+                                className="hidden md:flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors bg-[#05121d] px-3 py-1.5 rounded-full border border-slate-700 text-sm font-bold print:hidden"
+                                title="Sair da Conta"
+                            >
+                                Sair
+                            </button>
+                            
+                            <button 
                                 onClick={() => setIsHelpOpen(true)}
                                 className="hidden md:flex items-center gap-2 text-[#F59425] hover:text-white transition-colors bg-[#05121d] px-3 py-1.5 rounded-full border border-[#F59425]/30 text-sm font-bold print:hidden"
                             >
                                 <Icons.BookOpen size={16} />
-                                Ajuda
+                                Ajuda / Backup
                             </button>
                             <div className="text-right">
                                 <p className="text-sm text-slate-400 print:text-black">Saldo Real (Caixa)</p>
@@ -439,14 +622,14 @@
                     </div>
 
                     {/* Navegação */}
-                    <div className="flex border-b border-[#F59425]/20 bg-[#05121d]/50 no-print">
-                        <button onClick={() => setActiveTab('caixa')} className={`flex-1 py-4 flex justify-center items-center gap-2 font-medium transition-all ${activeTab === 'caixa' ? 'text-[#F59425] border-b-2 border-[#F59425] bg-[#0F3555]' : 'text-slate-400 hover:text-white hover:bg-[#0F3555]'}`}>
+                    <div className="flex border-b border-[#F59425]/20 bg-[#05121d]/50 no-print overflow-x-auto">
+                        <button onClick={() => setActiveTab('caixa')} className={`flex-1 py-4 px-2 whitespace-nowrap flex justify-center items-center gap-2 font-medium transition-all ${activeTab === 'caixa' ? 'text-[#F59425] border-b-2 border-[#F59425] bg-[#0F3555]' : 'text-slate-400 hover:text-white hover:bg-[#0F3555]'}`}>
                             <Icons.DollarSign size={18} /> Fluxo de Caixa
                         </button>
-                        <button onClick={() => setActiveTab('relatorios')} className={`flex-1 py-4 flex justify-center items-center gap-2 font-medium transition-all ${activeTab === 'relatorios' ? 'text-[#F59425] border-b-2 border-[#F59425] bg-[#0F3555]' : 'text-slate-400 hover:text-white hover:bg-[#0F3555]'}`}>
+                        <button onClick={() => setActiveTab('relatorios')} className={`flex-1 py-4 px-2 whitespace-nowrap flex justify-center items-center gap-2 font-medium transition-all ${activeTab === 'relatorios' ? 'text-[#F59425] border-b-2 border-[#F59425] bg-[#0F3555]' : 'text-slate-400 hover:text-white hover:bg-[#0F3555]'}`}>
                             <Icons.FileText size={18} /> Relatórios
                         </button>
-                        <button onClick={() => setActiveTab('precificacao')} className={`flex-1 py-4 flex justify-center items-center gap-2 font-medium transition-all ${activeTab === 'precificacao' ? 'text-[#F59425] border-b-2 border-[#F59425] bg-[#0F3555]' : 'text-slate-400 hover:text-white hover:bg-[#0F3555]'}`}>
+                        <button onClick={() => setActiveTab('precificacao')} className={`flex-1 py-4 px-2 whitespace-nowrap flex justify-center items-center gap-2 font-medium transition-all ${activeTab === 'precificacao' ? 'text-[#F59425] border-b-2 border-[#F59425] bg-[#0F3555]' : 'text-slate-400 hover:text-white hover:bg-[#0F3555]'}`}>
                             <Icons.Calculator size={18} /> Preço Justo
                         </button>
                     </div>
@@ -464,7 +647,6 @@
                                         <div><p className="text-red-400 text-sm font-bold uppercase">Saídas (Real)</p><p className="text-lg font-bold text-white">R$ {totalSaidas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p></div>
                                         <Icons.MinusCircle className="text-red-400 h-8 w-8" />
                                     </div>
-                                    {/* Card de Saldo do Mês (Atual) */}
                                     <div className="bg-[#05121d] p-4 rounded-lg border border-[#F59425]/30 flex justify-between items-center">
                                         <div>
                                             <p className="text-[#F59425] text-sm font-bold uppercase flex items-center gap-1"><Icons.Calendar size={14} /> Saldo do Mês</p>
@@ -472,7 +654,6 @@
                                             <p className="text-[10px] text-slate-500">Mês Atual (Pago)</p>
                                         </div>
                                     </div>
-                                    {/* Card de Previsão MÊS ATUAL */}
                                     <div className="bg-[#05121d] p-4 rounded-lg border border-slate-700 flex justify-between items-center">
                                         <div>
                                             <p className="text-slate-400 text-sm font-bold uppercase flex items-center gap-1"><Icons.Clock size={14} /> Previsto (Mês)</p>
@@ -484,6 +665,7 @@
 
                                 <div className="bg-[#0F3555] p-5 rounded-lg mb-6 border border-[#F59425]/20 shadow-lg no-print">
                                     <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase flex items-center gap-2"><Icons.PlusCircle className="w-4 h-4 text-[#F59425]" /> Novo Lançamento</h3>
+                                    
                                     <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
                                         <div className="md:col-span-2">
                                             <label className="text-[10px] text-slate-400 uppercase">Data</label>
@@ -493,18 +675,28 @@
                                             <label className="text-[10px] text-slate-400 uppercase">Descrição</label>
                                             <input type="text" placeholder="Ex: Venda Cliente X" className="w-full p-2 rounded" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} />
                                         </div>
-                                        <div className="md:col-span-2">
-                                            <label className="text-[10px] text-slate-400 uppercase">Valor (Parcela)</label>
+                                        <div className="md:col-span-3">
+                                            <label className="text-[10px] text-slate-400 uppercase">Conta de Alocação</label>
+                                            <select className="w-full p-2 rounded border border-[#F59425]/30 bg-[#0F3555] text-white" value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
+                                                <option value="Caixa da Empresa">🏢 Caixa da Empresa</option>
+                                                <option value="Pró-Labore">👤 Pró-Labore (Sócio)</option>
+                                                <option value="Fundo de Reserva">🛡️ Reserva & Passivos</option>
+                                                <option value="Geral">📊 Geral / Outros</option>
+                                            </select>
+                                        </div>
+                                        <div className="md:col-span-3">
+                                            <label className="text-[10px] text-slate-400 uppercase">Valor (R$)</label>
                                             <input type="number" placeholder="0,00" className="w-full p-2 rounded" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} />
                                         </div>
-                                        <div className="md:col-span-2">
+                                        
+                                        <div className="md:col-span-3">
                                             <label className="text-[10px] text-slate-400 uppercase">Tipo</label>
                                             <select className="w-full p-2 rounded" value={newType} onChange={(e) => setNewType(e.target.value)}>
                                                 <option value="entrada">Entrada (+)</option>
                                                 <option value="saida">Saída (-)</option>
                                             </select>
                                         </div>
-                                        <div className="md:col-span-2">
+                                        <div className="md:col-span-3">
                                             <label className="text-[10px] text-slate-400 uppercase">Status</label>
                                             <select className="w-full p-2 rounded border border-[#F59425]/50" value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
                                                 <option value="pago">✅ Confirmado</option>
@@ -512,8 +704,7 @@
                                             </select>
                                         </div>
                                         
-                                        {/* Opções de Parcelamento */}
-                                        <div className="md:col-span-12 flex items-center gap-4 bg-[#05121d] p-2 rounded border border-slate-700 mt-1">
+                                        <div className="md:col-span-6 flex items-center gap-4 bg-[#05121d] p-2 rounded border border-slate-700 mt-1 md:mt-4 h-[42px]">
                                             <label className="flex items-center gap-2 cursor-pointer text-sm text-white select-none">
                                                 <input type="checkbox" className="custom-checkbox rounded" checked={isInstallment} onChange={(e) => setIsInstallment(e.target.checked)} />
                                                 <Icons.Repeat size={16} />
@@ -547,14 +738,19 @@
                                             {transactions.sort((a,b) => b.date.localeCompare(a.date)).slice(0, 15).map((t) => (
                                                 <tr key={t.id} className={`hover:bg-[#05121d]/50 ${t.status === 'agendado' ? 'opacity-70 italic' : ''}`}>
                                                     <td className="p-3 whitespace-nowrap">{formatDate(t.date)}</td>
-                                                    <td className="p-3 font-medium text-white">{t.description}</td>
+                                                    <td className="p-3 font-medium text-white">
+                                                        {t.description}
+                                                        <span className="ml-2 text-[9px] px-2 py-0.5 rounded-full border border-slate-600 bg-slate-800/50 text-slate-300 hidden md:inline-block">
+                                                            {t.category || 'Geral'}
+                                                        </span>
+                                                    </td>
                                                     <td className="p-3 text-center cursor-pointer" onClick={() => toggleStatus(t.id)} title="Clique para alterar status">
                                                         {t.status === 'pago' 
                                                             ? <span className="bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded text-xs border border-emerald-800">Pago</span> 
                                                             : <span className="bg-orange-900/50 text-orange-400 px-2 py-1 rounded text-xs border border-orange-800 flex items-center justify-center gap-1"><Icons.Clock size={10} /> Futuro</span>
                                                         }
                                                     </td>
-                                                    <td className={`p-3 text-right font-bold ${t.type === 'entrada' ? 'text-emerald-400' : 'text-red-400'}`}>{t.type === 'entrada' ? '+' : '-'} R$ {t.amount.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                                                    <td className={`p-3 text-right font-bold ${t.type === 'entrada' ? 'text-emerald-400' : 'text-red-400'}`}>{t.type === 'entrada' ? '+' : '-'} R$ {Number(t.amount).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                                                     <td className="p-3 text-center no-print"><button onClick={() => removeTransaction(t.id)} className="text-slate-500 hover:text-red-400"><Icons.Trash2 size={16} /></button></td>
                                                 </tr>
                                             ))}
@@ -568,7 +764,6 @@
                         {/* --- ABA RELATÓRIOS --- */}
                         {activeTab === 'relatorios' && (
                             <div className="fade-in">
-                                {/* CARD: Visão Geral (Acumulado) - Pedido do utilizador */}
                                 <div className="mb-6">
                                      <div className="bg-[#0F3555] p-4 rounded-lg border border-[#F59425]/30 flex justify-between items-center shadow-lg">
                                         <div>
@@ -582,7 +777,6 @@
                                 <div className="bg-[#0F3555] p-4 rounded-lg mb-6 border border-[#F59425]/20 no-print">
                                     <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase flex items-center gap-2"><Icons.Filter size={16} /> Filtros</h3>
                                     
-                                    {/* SELETOR DE PERÍODO (Substitui meses fixos) */}
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                         <div className="col-span-1">
                                             <label className="text-xs text-[#F59425] font-bold block mb-1">Período</label>
@@ -600,7 +794,6 @@
                                             </select>
                                         </div>
 
-                                        {/* Inputs de Data (Aparecem APENAS se for Personalizado) */}
                                         {periodOption === 'custom' && (
                                             <>
                                                 <div><label className="text-xs text-slate-400 block mb-1">Início</label><input type="date" className="p-2 rounded text-sm w-full" value={filterStart} onChange={(e) => setFilterStart(e.target.value)} /></div>
@@ -637,7 +830,7 @@
                                                 <td className="py-2 text-center">
                                                     {t.status === 'pago' ? <span className="text-emerald-500 text-xs">Pago</span> : <span className="text-orange-400 text-xs italic">Previsto</span>}
                                                 </td>
-                                                <td className="py-2 text-right font-medium text-slate-200">R$ {t.amount.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                                                <td className="py-2 text-right font-medium text-slate-200">R$ {Number(t.amount).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -650,14 +843,11 @@
                             </div>
                         )}
 
-                        {/* --- ABA PREÇO JUSTO 2.0 (Neon) --- */}
+                        {/* --- ABA PREÇO JUSTO 2.0 --- */}
                         {activeTab === 'precificacao' && (
                             <div className="fade-in grid md:grid-cols-12 gap-6">
-                                {/* ... existing precificacao ... */}
-                                {/* COLUNA ESQUERDA: INPUTS */}
                                 <div className="md:col-span-7 space-y-6">
                                     
-                                    {/* 1. Cálculo da Hora */}
                                     <div className="bg-[#0F3555] p-5 rounded-xl border border-[#F59425]/20">
                                         <h3 className="font-bold text-[#F59425] mb-4 flex items-center gap-2 border-b border-[#05121d] pb-2">
                                             <Icons.Clock size={18} /> 1. Quanto vale seu tempo?
@@ -688,7 +878,6 @@
                                         </div>
                                     </div>
 
-                                    {/* 2. Custo do Produto */}
                                     <div className="bg-[#0F3555] p-5 rounded-xl border border-[#F59425]/20">
                                         <h3 className="font-bold text-purple-400 mb-4 flex items-center gap-2 border-b border-[#05121d] pb-2">
                                             <Icons.TrendingUp size={18} /> 2. Custo de Produção
@@ -718,7 +907,6 @@
                                         </div>
                                     </div>
 
-                                    {/* 3. Venda */}
                                     <div className="bg-[#0F3555] p-5 rounded-xl border border-[#F59425]/20">
                                         <h3 className="font-bold text-emerald-400 mb-4 flex items-center gap-2 border-b border-[#05121d] pb-2">
                                             <Icons.DollarSign size={18} /> 3. Variáveis de Venda
@@ -744,7 +932,6 @@
                                     </div>
                                 </div>
 
-                                {/* COLUNA DIREITA: RAIO-X (RESULTADO) */}
                                 <div className="md:col-span-5">
                                     <div className="bg-[#0F3555] rounded-xl overflow-hidden border border-[#F59425]/30 shadow-[0_0_20px_rgba(0,0,0,0.3)] sticky top-4">
                                         <div className="bg-[#05121d] p-4 border-b border-[#F59425]/20 text-center">
@@ -834,7 +1021,7 @@
                         </div>
                     )}
                     
-                    {/* --- MODAL DE AJUDA --- */}
+                    {/* --- MODAL DE AJUDA & BACKUP --- */}
                     {isHelpOpen && (
                         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#05121d]/90 backdrop-blur-md animate-pop">
                             <div className="bg-[#0F3555] w-full max-w-2xl h-[80vh] rounded-xl border border-[#0F3555] shadow-2xl flex flex-col relative overflow-hidden">
@@ -843,23 +1030,24 @@
                                 <div className="p-4 border-b border-[#F59425]/30 flex justify-between items-center bg-[#05121d]">
                                     <h3 className="font-bold text-white flex items-center gap-2">
                                         <Icons.HelpCircle size={20} className="text-[#F59425]" /> 
-                                        Manual de Uso
+                                        Manual & Segurança
                                     </h3>
                                     <button onClick={() => setIsHelpOpen(false)} className="text-slate-400 hover:text-white transition-colors">
                                         <Icons.X size={24} />
                                     </button>
                                 </div>
 
-                                {/* Conteúdo do Manual (Com Scroll) */}
+                                {/* Conteúdo do Manual */}
                                 <div className="p-6 overflow-y-auto text-slate-300 leading-relaxed text-sm flex-1">
                                     
                                     <div className="mb-6">
                                         <h4 className="text-[#F59425] font-bold text-lg mb-2 flex items-center gap-2">
-                                            <Icons.DollarSign size={18} /> 1. FLUXO DE CAIXA
+                                            <Icons.DollarSign size={18} /> 1. FLUXO DE CAIXA & CONTAS
                                         </h4>
                                         <p className="mb-2">Use esta tela para anotar tudo o que entra e sai da empresa.</p>
                                         <ul className="list-disc pl-5 space-y-1 mb-3">
                                             <li><strong>Adicionar Lançamento:</strong> Preencha data, descrição e valor.</li>
+                                            <li><strong>Conta de Alocação:</strong> Defina se a transação é para o "Caixa da Empresa", "Pró-Labore" ou "Fundo de Reserva" para um controle profissional.</li>
                                             <li><strong>Status:</strong> Escolha "Pago" para dinheiro que já movimentou, ou "Agendado" para contas futuras.</li>
                                             <li><strong>Repetir/Parcelar:</strong> Marque para criar parcelas automáticas (ex: 10x sem juros ou aluguel mensal).</li>
                                         </ul>
@@ -897,18 +1085,28 @@
                                     </div>
 
                                     <div className="border-t border-slate-700 pt-4 mt-4 text-center text-xs text-slate-500">
-                                        <p>Seus dados são salvos automaticamente no seu dispositivo. Ninguém tem acesso a eles.</p>
+                                        <p>Seus dados são sincronizados automaticamente em nuvem de forma segura.</p>
                                     </div>
                                 </div>
                                 
-                                {/* Rodapé do Modal */}
-                                <div className="p-4 bg-[#05121d] border-t border-[#F59425]/30 text-center">
+                                {/* Rodapé do Modal com Botões de Backup */}
+                                <div className="p-4 bg-[#05121d] border-t border-[#F59425]/30 text-center flex flex-col gap-3">
                                     <button 
                                         onClick={() => setIsHelpOpen(false)}
-                                        className="bg-[#F59425] text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors font-bold shadow-[0_0_10px_#F59425]"
+                                        className="bg-[#F59425] text-white w-full px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors font-bold shadow-[0_0_10px_#F59425]"
                                     >
                                         Entendi, vamos lucrar!
                                     </button>
+                                    
+                                    <div className="flex justify-center gap-4 mt-2 border-t border-slate-700 pt-4">
+                                        <button onClick={handleExportBackup} className="text-xs text-slate-400 hover:text-white underline flex items-center gap-1">
+                                            <Icons.Download size={14} /> Exportar Backup (Segurança)
+                                        </button>
+                                        <label className="text-xs text-slate-400 hover:text-[#F59425] underline flex items-center gap-1 cursor-pointer">
+                                            <Icons.Repeat size={14} /> Importar para a Nuvem
+                                            <input type="file" accept=".json" className="hidden" onChange={handleImportBackup} />
+                                        </label>
+                                    </div>
                                 </div>
 
                             </div>
@@ -921,7 +1119,6 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-    <!-- Script para ativar o Modo Offline (Service Worker) -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
