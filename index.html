@@ -158,6 +158,7 @@
             const [alertConfig, setAlertConfig] = useState(null);
             const [isHelpOpen, setIsHelpOpen] = useState(false); 
             const [transactions, setTransactions] = useState([]); 
+            const [updateModal, setUpdateModal] = useState(null); // NOVO: Modal de Atualização/Migração
 
             // Mantém a sessão ativa
             useEffect(() => {
@@ -248,6 +249,50 @@
             const showConfirm = (msg, action) => setAlertConfig({ type: 'confirm', message: msg, onConfirm: action });
             const showAlert = (msg) => setAlertConfig({ type: 'alert', message: msg });
             const closeAlert = () => setAlertConfig(null);
+
+            // --- 🚀 SISTEMA DE MIGRAÇÃO & NOVIDADES ---
+            useEffect(() => {
+                if (!user) return;
+                
+                const legacyDataStr = localStorage.getItem('financas_app_transactions');
+                const hasSeenUpdate = localStorage.getItem(`has_seen_v2_update_${user.uid}`);
+
+                if (legacyDataStr) {
+                    try {
+                        const legacyData = JSON.parse(legacyDataStr);
+                        if (Array.isArray(legacyData) && legacyData.length > 0) {
+                            setUpdateModal({ type: 'migration', data: legacyData });
+                        } else {
+                            localStorage.removeItem('financas_app_transactions');
+                            if (!hasSeenUpdate) setUpdateModal({ type: 'welcome' });
+                        }
+                    } catch (e) {
+                        if (!hasSeenUpdate) setUpdateModal({ type: 'welcome' });
+                    }
+                } else if (!hasSeenUpdate) {
+                    setUpdateModal({ type: 'welcome' });
+                }
+            }, [user]);
+
+            const handleMigrate = () => {
+                if (updateModal && updateModal.data) {
+                    updateModal.data.forEach(tx => {
+                        saveTransactionToCloud({
+                            ...tx,
+                            id: tx.id ? tx.id.toString() : Date.now().toString()
+                        });
+                    });
+                }
+                localStorage.removeItem('financas_app_transactions');
+                localStorage.setItem(`has_seen_v2_update_${user.uid}`, 'true');
+                setUpdateModal(null);
+                showAlert("Dados antigos migrados com sucesso para a Nuvem! ☁️");
+            };
+
+            const handleDismissUpdate = () => {
+                localStorage.setItem(`has_seen_v2_update_${user.uid}`, 'true');
+                setUpdateModal(null);
+            };
 
             // --- ESTADOS DO FORMULÁRIO DE LANÇAMENTO ---
             const [newDesc, setNewDesc] = useState('');
@@ -510,12 +555,12 @@
                         <div className="w-full max-w-md bg-[#0F3555]/80 backdrop-blur-xl p-8 rounded-2xl border border-[#F59425]/30 shadow-[0_0_40px_rgba(245,148,37,0.15)] z-10 animate-pop">
                             <div className="flex flex-col items-center mb-8">
                                 
-                                {/* SUA LOGO AQUI */}
-                                <div className="w-24 h-24 bg-[#05121d] rounded-full flex items-center justify-center border-2 border-[#F59425]/50 shadow-[0_0_20px_rgba(245,148,37,0.4)] mb-4 overflow-hidden p-2">
+                                {/* SUA LOGO AQUI: Círculo aumentado (w-32 h-32) e zoom na imagem (scale-125) */}
+                                <div className="w-32 h-32 bg-[#05121d] rounded-full flex items-center justify-center border-2 border-[#F59425]/50 shadow-[0_0_20px_rgba(245,148,37,0.4)] mb-4 overflow-hidden p-1">
                                     <img 
-                                        src="rocket_logo.png" 
-                                        alt="rocket_logo Icon" 
-                                        className="w-full h-full object-contain"
+                                        src="Logo Mission Finance icone.png" 
+                                        alt="Mission Finance Icon" 
+                                        className="w-full h-full object-contain scale-125"
                                         onError={(e) => { 
                                             e.target.onerror = null; 
                                             e.target.style.display = 'none'; 
@@ -523,7 +568,7 @@
                                         }} 
                                     />
                                     {/* Fallback caso a imagem não carregue */}
-                                    <Icons.Rocket size={40} className="text-[#F59425] hidden" />
+                                    <Icons.Rocket size={50} className="text-[#F59425] hidden" />
                                 </div>
                                 
                                 <h1 className="text-3xl font-bold text-white tracking-tight flex items-baseline">
@@ -573,11 +618,11 @@
                         <div>
                             <h1 className="text-2xl font-bold flex items-center gap-3 text-white select-none print:text-black">
                                 
-                                {/* LOGO NO CABEÇALHO */}
+                                {/* LOGO NO CABEÇALHO: Tamanho aumentado (w-14 h-14) e zoom aplicado (scale-125) */}
                                 <img 
                                     src="Logo Mission Finance icone.png" 
                                     alt="Logo" 
-                                    className="w-10 h-10 object-contain print:hidden drop-shadow-[0_0_8px_rgba(245,148,37,0.5)]"
+                                    className="w-14 h-14 object-contain scale-125 print:hidden drop-shadow-[0_0_8px_rgba(245,148,37,0.5)]"
                                     onError={(e) => { 
                                         e.target.onerror = null; 
                                         e.target.style.display = 'none'; 
@@ -1021,6 +1066,50 @@
                         </div>
                     )}
                     
+                    {/* --- MODAL DE ATUALIZAÇÃO E MIGRAÇÃO (NOVO) --- */}
+                    {updateModal && (
+                        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-[#05121d]/95 backdrop-blur-md animate-pop">
+                            <div className="bg-[#0F3555] p-8 rounded-2xl border border-[#F59425]/50 shadow-[0_0_40px_rgba(245,148,37,0.3)] max-w-md w-full text-center relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#F59425] to-orange-400"></div>
+                                
+                                <div className="w-20 h-20 bg-[#05121d] rounded-full flex items-center justify-center border-2 border-[#F59425]/50 shadow-[0_0_20px_rgba(245,148,37,0.4)] mx-auto mb-6">
+                                    <Icons.Rocket size={40} className="text-[#F59425] animate-bounce" />
+                                </div>
+
+                                <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">O Mission Finance <span className="text-[#F59425]">Evoluiu!</span></h3>
+                                
+                                {updateModal.type === 'migration' ? (
+                                    <>
+                                        <p className="text-slate-300 mb-6 text-sm leading-relaxed">
+                                            Agora seu aplicativo é <strong>100% nas nuvens!</strong> Mais rápido, seguro e acessível de qualquer dispositivo.
+                                            <br/><br/>
+                                            Encontramos lançamentos salvos neste aparelho. Vamos movê-los para o seu novo cofre digital para você não perder nada?
+                                        </p>
+                                        <button onClick={handleMigrate} className="w-full bg-[#F59425] text-white font-bold py-3 rounded-xl shadow-[0_0_15px_rgba(245,148,37,0.4)] hover:bg-orange-600 transition-all mb-3">
+                                            Sim, sincronizar meus dados! ☁️
+                                        </button>
+                                        <button onClick={() => { localStorage.removeItem('financas_app_transactions'); handleDismissUpdate(); }} className="text-xs text-slate-500 hover:text-red-400 underline">
+                                            Não, quero começar do zero.
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="text-slate-300 mb-6 text-sm text-left bg-[#05121d] p-4 rounded-xl border border-slate-700">
+                                            <ul className="space-y-3">
+                                                <li className="flex items-start gap-2"><Icons.Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0"/> <span><strong>Nuvem Privada:</strong> Seus dados agora são sincronizados e protegidos pelo Google.</span></li>
+                                                <li className="flex items-start gap-2"><Icons.Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0"/> <span><strong>Contas Profissionais:</strong> Separe as finanças entre <em>Caixa da Empresa</em>, <em>Pró-Labore</em> e <em>Reservas</em>.</span></li>
+                                                <li className="flex items-start gap-2"><Icons.Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0"/> <span><strong>Segurança:</strong> Acesso exclusivo com login e senha em qualquer dispositivo.</span></li>
+                                            </ul>
+                                        </div>
+                                        <button onClick={handleDismissUpdate} className="w-full bg-[#F59425] text-white font-bold py-3 rounded-xl shadow-[0_0_15px_rgba(245,148,37,0.4)] hover:bg-orange-600 transition-all">
+                                            Incrível! Quero começar 🚀
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     {/* --- MODAL DE AJUDA & BACKUP --- */}
                     {isHelpOpen && (
                         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#05121d]/90 backdrop-blur-md animate-pop">
