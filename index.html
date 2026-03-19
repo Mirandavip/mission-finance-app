@@ -151,6 +151,7 @@
             const [isLoginMode, setIsLoginMode] = useState(true);
             const [authEmail, setAuthEmail] = useState('');
             const [authPassword, setAuthPassword] = useState('');
+            const [authCode, setAuthCode] = useState(''); // NOVO: Estado do Código de Acesso
             const [isAuthLoading, setIsAuthLoading] = useState(false);
 
             // --- ESTADOS DA APLICAÇÃO ---
@@ -173,8 +174,28 @@
             const handleAuth = async (e) => {
                 e.preventDefault();
                 setIsAuthLoading(true);
+
+                // 🛑 PRÉ-VALIDAÇÃO (Evita que o usuário crie senhas fracas)
+                if (authPassword.length < 6) {
+                    showAlert('Segurança: A sua senha deve ter no mínimo 6 caracteres.');
+                    setIsAuthLoading(false);
+                    return; // Trava aqui!
+                }
+
                 try {
+                    // 🛑 BARREIRA DE SEGURANÇA: Verifica o código ANTES de qualquer coisa!
+                    if (!isLoginMode) {
+                        const validCodes = ['ADMIRA2026', 'CLIENTE-VIP']; // Seus códigos secretos
+                        
+                        if (!validCodes.includes(authCode.toUpperCase().trim())) {
+                            showAlert('Código de Ativação inválido. Verifique o código na área de membros ou contate o suporte.');
+                            setIsAuthLoading(false);
+                            return; // O sistema trava aqui e não deixa entrar!
+                        }
+                    }
+
                     if (isCanvas) {
+                        // Simulação para o nosso painel de testes aqui
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                             await signInWithCustomToken(auth, __initial_auth_token);
                         } else {
@@ -182,6 +203,7 @@
                         }
                         setUser({ uid: auth.currentUser?.uid || Date.now().toString(), email: authEmail });
                     } else {
+                        // Mundo Real (Seu link oficial)
                         if (isLoginMode) {
                             const cred = await signInWithEmailAndPassword(auth, authEmail, authPassword);
                             setUser(cred.user);
@@ -555,7 +577,7 @@
                         <div className="w-full max-w-md bg-[#0F3555]/80 backdrop-blur-xl p-8 rounded-2xl border border-[#F59425]/30 shadow-[0_0_40px_rgba(245,148,37,0.15)] z-10 animate-pop">
                             <div className="flex flex-col items-center mb-8">
                                 
-                                {/* SUA LOGO AQUI: Círculo aumentado (w-32 h-32) e zoom na imagem (scale-125) */}
+                                {/* SUA LOGO AQUI */}
                                 <div className="w-32 h-32 bg-[#05121d] rounded-full flex items-center justify-center border-2 border-[#F59425]/50 shadow-[0_0_20px_rgba(245,148,37,0.4)] mb-4 overflow-hidden p-1">
                                     <img 
                                         src="rocket_logo.png" 
@@ -567,7 +589,6 @@
                                             e.target.nextSibling.style.display = 'block'; 
                                         }} 
                                     />
-                                    {/* Fallback caso a imagem não carregue */}
                                     <Icons.Rocket size={50} className="text-[#F59425] hidden" />
                                 </div>
                                 
@@ -582,6 +603,7 @@
                                     <label className="text-xs text-slate-400 uppercase font-bold mb-1 block">E-mail de Acesso</label>
                                     <input type="email" required className="w-full p-3 rounded-lg bg-[#05121d] border border-slate-600 text-white focus:border-[#F59425] transition-colors shadow-inner" placeholder="seu@email.com" value={authEmail} onChange={e => setAuthEmail(e.target.value)} />
                                 </div>
+                                
                                 <div>
                                     <div className="flex justify-between items-center mb-1">
                                         <label className="text-xs text-slate-400 uppercase font-bold">Senha</label>
@@ -589,6 +611,16 @@
                                     </div>
                                     <input type="password" required className="w-full p-3 rounded-lg bg-[#05121d] border border-slate-600 text-white focus:border-[#F59425] transition-colors shadow-inner" placeholder="••••••••" value={authPassword} onChange={e => setAuthPassword(e.target.value)} />
                                 </div>
+
+                                {/* NOVO CAMPO: Só aparece se o usuário estiver tentando Criar Conta (!isLoginMode) */}
+                                {!isLoginMode && (
+                                    <div className="fade-in">
+                                        <label className="text-xs text-[#F59425] uppercase font-bold mb-1 block flex items-center gap-1">
+                                            <Icons.Check size={14} /> Código de Ativação
+                                        </label>
+                                        <input type="text" required className="w-full p-3 rounded-lg bg-[#05121d] border border-[#F59425]/50 text-white focus:border-[#F59425] transition-colors shadow-inner" placeholder="Digite o código da área de membros" value={authCode} onChange={e => setAuthCode(e.target.value)} />
+                                    </div>
+                                )}
 
                                 <button type="submit" disabled={isAuthLoading} className="w-full bg-[#F59425] text-white p-3 rounded-lg font-bold uppercase tracking-wider hover:bg-orange-600 transition-all shadow-[0_0_15px_rgba(245,148,37,0.4)] disabled:opacity-50 flex justify-center items-center gap-2 mt-2">
                                     {isAuthLoading ? <Icons.Repeat size={20} className="animate-spin" /> : (isLoginMode ? 'Entrar no Sistema' : 'Ativar Minha Conta')}
@@ -603,6 +635,43 @@
                                 )}
                             </div>
                         </div>
+
+                        {/* --- MODAL DE ALERTA (CORREÇÃO: AGORA APARECE NA TELA DE LOGIN TAMBÉM) --- */}
+                        {alertConfig && (
+                            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#05121d]/90 backdrop-blur-md animate-pop">
+                                <div className="bg-[#0F3555] p-6 rounded-xl border border-[#0F3555] shadow-2xl max-w-sm w-full text-center relative overflow-hidden">
+                                    {alertConfig.type === 'alert' && <div className="absolute top-0 left-0 w-full h-1 bg-red-500 shadow-[0_0_10px_#ef4444]"></div>}
+                                    {alertConfig.type === 'confirm' && <div className="absolute top-0 left-0 w-full h-1 bg-[#F59425] shadow-[0_0_10px_#F59425]"></div>}
+                                    
+                                    <div className="mb-4 flex justify-center text-slate-300">
+                                        {alertConfig.type === 'alert' ? <Icons.Alert size={40} className="text-red-400" /> : <Icons.Rocket size={40} className="text-[#F59425]" />}
+                                    </div>
+
+                                    <h3 className="text-lg font-bold text-white mb-2">{alertConfig.type === 'alert' ? 'Atenção' : 'Confirmação'}</h3>
+                                    <p className="text-slate-300 mb-6 text-sm">{alertConfig.message}</p>
+                                    
+                                    <div className="flex gap-3 justify-center">
+                                        {alertConfig.type === 'confirm' && (
+                                            <button 
+                                                onClick={closeAlert}
+                                                className="px-4 py-2 rounded-lg border border-slate-500 text-slate-300 hover:bg-[#05121d] transition-colors"
+                                            >
+                                                Cancelar
+                                            </button>
+                                        )}
+                                        <button 
+                                            onClick={() => {
+                                                if (alertConfig.onConfirm) alertConfig.onConfirm();
+                                                closeAlert();
+                                            }}
+                                            className={`px-6 py-2 rounded-lg text-white font-bold transition-all shadow-lg ${alertConfig.type === 'alert' ? 'bg-red-600 hover:bg-red-500' : 'bg-[#F59425] hover:bg-orange-600'}`}
+                                        >
+                                            {alertConfig.type === 'alert' ? 'Entendi' : 'Sim, continuar'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 );
             }
