@@ -845,11 +845,20 @@
                                     </div>
                                 </div>
 
-                                <div className="overflow-x-auto rounded-lg border border-[#F59425]/20">
+                                {/* --- TABELA COM ROLAGEM INFINITA E CABEÇALHO CONGELADO --- */}
+                                <div className="overflow-x-auto overflow-y-auto max-h-[500px] rounded-lg border border-[#F59425]/20 relative">
                                     <table className="w-full text-left text-sm text-slate-300">
-                                        <thead className="bg-[#05121d] text-slate-400 uppercase font-semibold"><tr className="border-b border-[#F59425]/20"><th className="p-3">Data</th><th className="p-3">Descrição</th><th className="p-3 text-center">Status</th><th className="p-3 text-right">Valor</th><th className="p-3 text-center w-16 no-print">X</th></tr></thead>
+                                        <thead className="bg-[#05121d] text-slate-400 uppercase font-semibold sticky top-0 z-10 shadow-md">
+                                            <tr className="border-b border-[#F59425]/20">
+                                                <th className="p-3">Data</th>
+                                                <th className="p-3">Descrição</th>
+                                                <th className="p-3 text-center">Status</th>
+                                                <th className="p-3 text-right">Valor</th>
+                                                <th className="p-3 text-center w-16 no-print">X</th>
+                                            </tr>
+                                        </thead>
                                         <tbody className="divide-y divide-[#F59425]/10">
-                                            {transactions.sort((a,b) => b.date.localeCompare(a.date)).slice(0, 15).map((t) => (
+                                            {transactions.sort((a,b) => b.date.localeCompare(a.date)).map((t) => (
                                                 <tr key={t.id} className={`hover:bg-[#05121d]/50 ${t.status === 'agendado' ? 'opacity-70 italic' : ''}`}>
                                                     <td className="p-3 whitespace-nowrap">{formatDate(t.date)}</td>
                                                     <td className="p-3 font-medium text-white">
