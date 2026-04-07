@@ -331,7 +331,8 @@
             const [filterStart, setFilterStart] = useState('');
             const [filterEnd, setFilterEnd] = useState('');
             const [filterType, setFilterType] = useState('todos');
-
+            const [filterStatus, setFilterStatus] = useState('todos');
+            
             useEffect(() => {
                 handlePeriodChange({ target: { value: 'current_month' } });
             }, []);
@@ -497,12 +498,13 @@
                 }
             };
 
-            const getFilteredTransactions = () => {
+           const getFilteredTransactions = () => {
                 return transactions.filter(t => {
                     const matchType = filterType === 'todos' ? true : t.type === filterType;
+                    const matchStatus = filterStatus === 'todos' ? true : t.status === filterStatus; // 🚀 NOVO
                     const matchStart = filterStart ? t.date >= filterStart : true;
                     const matchEnd = filterEnd ? t.date <= filterEnd : true;
-                    return matchType && matchStart && matchEnd;
+                    return matchType && matchStatus && matchStart && matchEnd;
                 }).sort((a, b) => b.date.localeCompare(a.date));
             };
 
@@ -900,11 +902,11 @@
                                 <div className="bg-[#0F3555] p-4 rounded-lg mb-6 border border-[#F59425]/20 no-print">
                                     <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase flex items-center gap-2"><Icons.Filter size={16} /> Filtros</h3>
                                     
-                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                                         <div className="col-span-1">
                                             <label className="text-xs text-[#F59425] font-bold block mb-1">Período</label>
                                             <select 
-                                                className="w-full p-2 rounded text-sm bg-[#05121d] border border-[#F59425]/50 text-white" 
+                                                className="w-full p-2 rounded text-sm bg-[#05121d] border border-[#F59425]/50 text-white focus:border-[#F59425]" 
                                                 value={periodOption} 
                                                 onChange={handlePeriodChange}
                                             >
@@ -916,6 +918,37 @@
                                                 <option value="custom">Personalizado</option>
                                             </select>
                                         </div>
+
+                                        {periodOption === 'custom' && (
+                                            <>
+                                                <div><label className="text-xs text-slate-400 block mb-1">Início</label><input type="date" className="p-2 rounded text-sm w-full border border-slate-700 focus:border-[#F59425]" value={filterStart} onChange={(e) => setFilterStart(e.target.value)} /></div>
+                                                <div><label className="text-xs text-slate-400 block mb-1">Fim</label><input type="date" className="p-2 rounded text-sm w-full border border-slate-700 focus:border-[#F59425]" value={filterEnd} onChange={(e) => setFilterEnd(e.target.value)} /></div>
+                                            </>
+                                        )}
+                                        
+                                        <div className="col-span-1">
+                                            <label className="text-xs text-slate-400 block mb-1">Tipo</label>
+                                            <select className="p-2 rounded text-sm w-full bg-[#05121d] border border-slate-700 text-white focus:border-[#F59425]" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+                                                <option value="todos">Todos</option>
+                                                <option value="entrada">Entradas</option>
+                                                <option value="saida">Saídas</option>
+                                            </select>
+                                        </div>
+
+                                        {/* 🚀 NOVO FILTRO DE STATUS AQUI */}
+                                        <div className="col-span-1">
+                                            <label className="text-xs text-slate-400 block mb-1">Status</label>
+                                            <select className="p-2 rounded text-sm w-full bg-[#05121d] border border-slate-700 text-white focus:border-[#F59425]" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                                                <option value="todos">Todos</option>
+                                                <option value="pago">✅ Pagos</option>
+                                                <option value="agendado">📅 Agendados (Futuro)</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="col-span-1 flex items-center justify-end h-full pb-1">
+                                            <button onClick={() => { handlePeriodChange({ target: { value: 'current_month' } }); setFilterType('todos'); setFilterStatus('todos'); }} className="px-3 py-2 text-sm text-[#F59425] underline hover:text-orange-400">Limpar Filtros</button>
+                                        </div>
+                                    </div>
 
                                         {periodOption === 'custom' && (
                                             <>
