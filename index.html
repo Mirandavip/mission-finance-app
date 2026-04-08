@@ -151,7 +151,7 @@
             const [isLoginMode, setIsLoginMode] = useState(true);
             const [authEmail, setAuthEmail] = useState('');
             const [authPassword, setAuthPassword] = useState('');
-            const [authCode, setAuthCode] = useState(''); // NOVO: Estado do Código de Acesso
+            const [authCode, setAuthCode] = useState(''); 
             const [isAuthLoading, setIsAuthLoading] = useState(false);
 
             // --- ESTADOS DA APLICAÇÃO ---
@@ -159,7 +159,7 @@
             const [alertConfig, setAlertConfig] = useState(null);
             const [isHelpOpen, setIsHelpOpen] = useState(false); 
             const [transactions, setTransactions] = useState([]); 
-            const [updateModal, setUpdateModal] = useState(null); // NOVO: Modal de Atualização/Migração
+            const [updateModal, setUpdateModal] = useState(null); 
 
             // Mantém a sessão ativa
             useEffect(() => {
@@ -179,7 +179,7 @@
                 if (authPassword.length < 6) {
                     showAlert('Segurança: A sua senha deve ter no mínimo 6 caracteres.');
                     setIsAuthLoading(false);
-                    return; // Trava aqui!
+                    return; 
                 }
 
                 try {
@@ -190,7 +190,7 @@
                         if (!validCodes.includes(authCode.toUpperCase().trim())) {
                             showAlert('Código de Ativação inválido. Verifique o código na área de membros ou contate o suporte.');
                             setIsAuthLoading(false);
-                            return; // O sistema trava aqui e não deixa entrar!
+                            return; 
                         }
                     }
 
@@ -331,7 +331,7 @@
             const [filterStart, setFilterStart] = useState('');
             const [filterEnd, setFilterEnd] = useState('');
             const [filterType, setFilterType] = useState('todos');
-            const [filterStatus, setFilterStatus] = useState('todos');
+            const [filterStatus, setFilterStatus] = useState('todos'); // 🚀 NOVO FILTRO AQUI
             
             useEffect(() => {
                 handlePeriodChange({ target: { value: 'current_month' } });
@@ -498,10 +498,11 @@
                 }
             };
 
-           const getFilteredTransactions = () => {
+            // 🚀 NOVA LÓGICA DE FILTRO AQUI
+            const getFilteredTransactions = () => {
                 return transactions.filter(t => {
                     const matchType = filterType === 'todos' ? true : t.type === filterType;
-                    const matchStatus = filterStatus === 'todos' ? true : t.status === filterStatus; // 🚀 NOVO
+                    const matchStatus = filterStatus === 'todos' ? true : t.status === filterStatus; 
                     const matchStart = filterStart ? t.date >= filterStart : true;
                     const matchEnd = filterEnd ? t.date <= filterEnd : true;
                     return matchType && matchStatus && matchStart && matchEnd;
@@ -568,7 +569,7 @@
             const minPrice = minDivisor > 0 ? totalBaseCost / minDivisor : 0;
 
             // ========================================================================
-            // TELA DE LOGIN (COM A SUA LOGO)
+            // TELA DE LOGIN 
             // ========================================================================
             if (!user) {
                 return (
@@ -579,7 +580,6 @@
                         <div className="w-full max-w-md bg-[#0F3555]/80 backdrop-blur-xl p-8 rounded-2xl border border-[#F59425]/30 shadow-[0_0_40px_rgba(245,148,37,0.15)] z-10 animate-pop">
                             <div className="flex flex-col items-center mb-8">
                                 
-                                {/* SUA LOGO AQUI */}
                                 <div className="w-32 h-32 bg-[#05121d] rounded-full flex items-center justify-center border-2 border-[#F59425]/50 shadow-[0_0_20px_rgba(245,148,37,0.4)] mb-4 overflow-hidden p-1">
                                     <img 
                                         src="rocket_logo.png" 
@@ -614,7 +614,6 @@
                                     <input type="password" required className="w-full p-3 rounded-lg bg-[#05121d] border border-slate-600 text-white focus:border-[#F59425] transition-colors shadow-inner" placeholder="••••••••" value={authPassword} onChange={e => setAuthPassword(e.target.value)} />
                                 </div>
 
-                                {/* NOVO CAMPO: Só aparece se o usuário estiver tentando Criar Conta (!isLoginMode) */}
                                 {!isLoginMode && (
                                     <div className="fade-in">
                                         <label className="text-xs text-[#F59425] uppercase font-bold mb-1 block flex items-center gap-1">
@@ -638,7 +637,7 @@
                             </div>
                         </div>
 
-                        {/* --- MODAL DE ALERTA (CORREÇÃO: AGORA APARECE NA TELA DE LOGIN TAMBÉM) --- */}
+                        {/* --- MODAL DE ALERTA --- */}
                         {alertConfig && (
                             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#05121d]/90 backdrop-blur-md animate-pop">
                                 <div className="bg-[#0F3555] p-6 rounded-xl border border-[#0F3555] shadow-2xl max-w-sm w-full text-center relative overflow-hidden">
@@ -679,7 +678,7 @@
             }
 
             // ========================================================================
-            // DASHBOARD PRINCIPAL (Mostrado após o Login)
+            // DASHBOARD PRINCIPAL 
             // ========================================================================
             return (
                 <div className="max-w-5xl mx-auto my-4 bg-[#0F3555] rounded-xl shadow-2xl overflow-hidden border border-[#0F3555] print:shadow-none print:border-none print:my-0 print:w-full min-h-[90vh]">
@@ -689,7 +688,6 @@
                         <div>
                             <h1 className="text-2xl font-bold flex items-center gap-3 text-white select-none print:text-black">
                                 
-                                {/* LOGO NO CABEÇALHO: Tamanho aumentado (w-14 h-14) e zoom aplicado (scale-125) */}
                                 <img 
                                     src="rocket_logo.png" 
                                     alt="Logo" 
@@ -860,7 +858,7 @@
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[#F59425]/10">
-                                            {transactions.sort((a,b) => b.date.localeCompare(a.date)).map((t) => (
+                                            {[...transactions].sort((a,b) => b.date.localeCompare(a.date)).map((t) => (
                                                 <tr key={t.id} className={`hover:bg-[#05121d]/50 ${t.status === 'agendado' ? 'opacity-70 italic' : ''}`}>
                                                     <td className="p-3 whitespace-nowrap">{formatDate(t.date)}</td>
                                                     <td className="p-3 font-medium text-white">
@@ -899,6 +897,7 @@
                                     </div>
                                 </div>
 
+                                {/* 🚀 BLOCO DE FILTROS CORRIGIDO E LIMPO */}
                                 <div className="bg-[#0F3555] p-4 rounded-lg mb-6 border border-[#F59425]/20 no-print">
                                     <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase flex items-center gap-2"><Icons.Filter size={16} /> Filtros</h3>
                                     
@@ -919,11 +918,13 @@
                                             </select>
                                         </div>
 
-                                        {periodOption === 'custom' && (
-                                            <>
-                                                <div><label className="text-xs text-slate-400 block mb-1">Início</label><input type="date" className="p-2 rounded text-sm w-full border border-slate-700 focus:border-[#F59425]" value={filterStart} onChange={(e) => setFilterStart(e.target.value)} /></div>
-                                                <div><label className="text-xs text-slate-400 block mb-1">Fim</label><input type="date" className="p-2 rounded text-sm w-full border border-slate-700 focus:border-[#F59425]" value={filterEnd} onChange={(e) => setFilterEnd(e.target.value)} /></div>
-                                            </>
+                                        {periodOption === 'custom' ? (
+                                            <div className="col-span-2 flex gap-2">
+                                                <div className="w-1/2"><label className="text-xs text-slate-400 block mb-1">Início</label><input type="date" className="p-2 rounded text-sm w-full border border-slate-700 focus:border-[#F59425] bg-[#05121d] text-white" value={filterStart} onChange={(e) => setFilterStart(e.target.value)} /></div>
+                                                <div className="w-1/2"><label className="text-xs text-slate-400 block mb-1">Fim</label><input type="date" className="p-2 rounded text-sm w-full border border-slate-700 focus:border-[#F59425] bg-[#05121d] text-white" value={filterEnd} onChange={(e) => setFilterEnd(e.target.value)} /></div>
+                                            </div>
+                                        ) : (
+                                            <div className="col-span-1 hidden md:block"></div> 
                                         )}
                                         
                                         <div className="col-span-1">
@@ -935,7 +936,6 @@
                                             </select>
                                         </div>
 
-                                        {/* 🚀 NOVO FILTRO DE STATUS AQUI */}
                                         <div className="col-span-1">
                                             <label className="text-xs text-slate-400 block mb-1">Status</label>
                                             <select className="p-2 rounded text-sm w-full bg-[#05121d] border border-slate-700 text-white focus:border-[#F59425]" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
@@ -945,27 +945,12 @@
                                             </select>
                                         </div>
 
-                                        <div className="col-span-1 flex items-center justify-end h-full pb-1">
-                                            <button onClick={() => { handlePeriodChange({ target: { value: 'current_month' } }); setFilterType('todos'); setFilterStatus('todos'); }} className="px-3 py-2 text-sm text-[#F59425] underline hover:text-orange-400">Limpar Filtros</button>
-                                        </div>
-                                    </div>
-
-                                        {periodOption === 'custom' && (
-                                            <>
-                                                <div><label className="text-xs text-slate-400 block mb-1">Início</label><input type="date" className="p-2 rounded text-sm w-full" value={filterStart} onChange={(e) => setFilterStart(e.target.value)} /></div>
-                                                <div><label className="text-xs text-slate-400 block mb-1">Fim</label><input type="date" className="p-2 rounded text-sm w-full" value={filterEnd} onChange={(e) => setFilterEnd(e.target.value)} /></div>
-                                            </>
-                                        )}
-                                        
-                                        <div className="flex gap-2 col-span-1">
-                                            <div className="flex-grow">
-                                                <label className="text-xs text-slate-400 block mb-1">Tipo</label>
-                                                <select className="p-2 rounded text-sm w-full bg-[#05121d]" value={filterType} onChange={(e) => setFilterType(e.target.value)}><option value="todos">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option></select>
-                                            </div>
-                                            <button onClick={() => { handlePeriodChange({ target: { value: 'current_month' } }); setFilterType('todos'); }} className="px-3 py-2 text-sm text-[#F59425] underline hover:text-orange-400 self-end">Reset</button>
+                                        <div className="col-span-1 md:col-span-5 flex justify-end pt-2">
+                                            <button onClick={() => { handlePeriodChange({ target: { value: 'current_month' } }); setFilterType('todos'); setFilterStatus('todos'); }} className="px-4 py-2 text-sm text-[#05121d] font-bold bg-[#F59425] rounded hover:bg-orange-600 transition-colors">Limpar Filtros</button>
                                         </div>
                                     </div>
                                 </div>
+                                {/* 🚀 FIM DO BLOCO DE FILTROS CORRIGIDO */}
 
                                 <div className="mb-6 border-b border-[#F59425]/20 pb-6">
                                     <h2 className="text-lg font-bold text-white mb-4">Resumo do Período Selecionado</h2>
@@ -1177,7 +1162,7 @@
                         </div>
                     )}
                     
-                    {/* --- MODAL DE ATUALIZAÇÃO E MIGRAÇÃO (NOVO) --- */}
+                    {/* --- MODAL DE ATUALIZAÇÃO E MIGRAÇÃO --- */}
                     {updateModal && (
                         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-[#05121d]/95 backdrop-blur-md animate-pop">
                             <div className="bg-[#0F3555] p-8 rounded-2xl border border-[#F59425]/50 shadow-[0_0_40px_rgba(245,148,37,0.3)] max-w-md w-full text-center relative overflow-hidden">
