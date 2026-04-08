@@ -332,6 +332,7 @@
             const [filterEnd, setFilterEnd] = useState('');
             const [filterType, setFilterType] = useState('todos');
             const [filterStatus, setFilterStatus] = useState('todos'); // 🚀 NOVO FILTRO AQUI
+            const [filterCategory, setFilterCategory] = useState('todos'); // 🚀 NOVO FILTRO DE CONTA
             
             useEffect(() => {
                 handlePeriodChange({ target: { value: 'current_month' } });
@@ -503,9 +504,10 @@
                 return transactions.filter(t => {
                     const matchType = filterType === 'todos' ? true : t.type === filterType;
                     const matchStatus = filterStatus === 'todos' ? true : t.status === filterStatus; 
+                    const matchCategory = filterCategory === 'todos' ? true : (t.category || 'Geral') === filterCategory; // 🚀 NOVO
                     const matchStart = filterStart ? t.date >= filterStart : true;
                     const matchEnd = filterEnd ? t.date <= filterEnd : true;
-                    return matchType && matchStatus && matchStart && matchEnd;
+                    return matchType && matchStatus && matchCategory && matchStart && matchEnd;
                 }).sort((a, b) => b.date.localeCompare(a.date));
             };
 
@@ -901,7 +903,7 @@
                                 <div className="bg-[#0F3555] p-4 rounded-lg mb-6 border border-[#F59425]/20 no-print">
                                     <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase flex items-center gap-2"><Icons.Filter size={16} /> Filtros</h3>
                                     
-                                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
                                         <div className="col-span-1">
                                             <label className="text-xs text-[#F59425] font-bold block mb-1">Período</label>
                                             <select 
@@ -919,14 +921,26 @@
                                         </div>
 
                                         {periodOption === 'custom' ? (
-                                            <div className="col-span-2 flex gap-2">
+                                            <div className="col-span-1 md:col-span-2 flex gap-2">
                                                 <div className="w-1/2"><label className="text-xs text-slate-400 block mb-1">Início</label><input type="date" className="p-2 rounded text-sm w-full border border-slate-700 focus:border-[#F59425] bg-[#05121d] text-white" value={filterStart} onChange={(e) => setFilterStart(e.target.value)} /></div>
                                                 <div className="w-1/2"><label className="text-xs text-slate-400 block mb-1">Fim</label><input type="date" className="p-2 rounded text-sm w-full border border-slate-700 focus:border-[#F59425] bg-[#05121d] text-white" value={filterEnd} onChange={(e) => setFilterEnd(e.target.value)} /></div>
                                             </div>
                                         ) : (
-                                            <div className="col-span-1 hidden md:block"></div> 
+                                            <div className="col-span-1 md:col-span-2 hidden lg:block"></div> 
                                         )}
                                         
+                                        {/* 🚀 NOVO FILTRO DE CONTA AQUI */}
+                                        <div className="col-span-1">
+                                            <label className="text-xs text-slate-400 block mb-1">Conta (Alocação)</label>
+                                            <select className="p-2 rounded text-sm w-full bg-[#05121d] border border-slate-700 text-white focus:border-[#F59425]" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+                                                <option value="todos">Todas</option>
+                                                <option value="Caixa da Empresa">🏢 Caixa</option>
+                                                <option value="Pró-Labore">👤 Pró-Labore</option>
+                                                <option value="Fundo de Reserva">🛡️ Reserva</option>
+                                                <option value="Geral">📊 Geral / Outros</option>
+                                            </select>
+                                        </div>
+
                                         <div className="col-span-1">
                                             <label className="text-xs text-slate-400 block mb-1">Tipo</label>
                                             <select className="p-2 rounded text-sm w-full bg-[#05121d] border border-slate-700 text-white focus:border-[#F59425]" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
@@ -945,8 +959,8 @@
                                             </select>
                                         </div>
 
-                                        <div className="col-span-1 md:col-span-5 flex justify-end pt-2">
-                                            <button onClick={() => { handlePeriodChange({ target: { value: 'current_month' } }); setFilterType('todos'); setFilterStatus('todos'); }} className="px-4 py-2 text-sm text-[#05121d] font-bold bg-[#F59425] rounded hover:bg-orange-600 transition-colors">Limpar Filtros</button>
+                                        <div className="col-span-1 md:col-span-3 lg:col-span-6 flex justify-end pt-2">
+                                            <button onClick={() => { handlePeriodChange({ target: { value: 'current_month' } }); setFilterType('todos'); setFilterStatus('todos'); setFilterCategory('todos'); }} className="px-4 py-2 text-sm text-[#05121d] font-bold bg-[#F59425] rounded hover:bg-orange-600 transition-colors">Limpar Filtros</button>
                                         </div>
                                     </div>
                                 </div>
@@ -967,7 +981,12 @@
                                         {filteredData.map((t) => (
                                             <tr key={t.id}>
                                                 <td className="py-2 text-slate-400">{formatDate(t.date)}</td>
-                                                <td className="py-2 text-white">{t.description}</td>
+                                                <td className="py-2 text-white">
+                                                    {t.description}
+                                                    <span className="ml-2 text-[9px] px-2 py-0.5 rounded-full border border-slate-600 bg-slate-800/50 text-slate-300 hidden md:inline-block">
+                                                        {t.category || 'Geral'}
+                                                    </span>
+                                                </td>
                                                 <td className="py-2 text-center">
                                                     {t.status === 'pago' ? <span className="text-emerald-500 text-xs">Pago</span> : <span className="text-orange-400 text-xs italic">Previsto</span>}
                                                 </td>
