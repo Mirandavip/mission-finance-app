@@ -46,6 +46,18 @@
             box-shadow: 0 0 8px rgba(245, 148, 37, 0.3);
         }
         
+        /* 🚀 NOVO: Deixa o ícone do calendário branco/visível no fundo escuro */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.2s;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+            filter: invert(0.6) sepia(1) saturate(5) hue-rotate(350deg); /* Fica Laranja ao passar o mouse */
+        }
+        
         .custom-checkbox { accent-color: #F59425; width: 16px; height: 16px; }
 
         .fade-in { animation: fadeIn 0.3s ease-in; }
@@ -60,10 +72,17 @@
             .print\:text-black { color: black !important; text-shadow: none !important; }
         }
 
+        /* Scrollbar customizada global */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #05121d; }
         ::-webkit-scrollbar-thumb { background: #0F3555; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #F59425; }
+
+        /* Scrollbar mais fina para modais */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(5, 18, 29, 0.5); border-radius: 4px;}
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(245, 148, 37, 0.3); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(245, 148, 37, 0.8); }
     </style>
 </head>
 <body>
@@ -101,19 +120,20 @@
         // Ícones SVG
         const Icons = {
             TrendingUp: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>,
-            DollarSign: ({size=20}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>,
+            DollarSign: ({size=20, className=""}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>,
             FileText: ({size=20}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>,
             Calculator: ({size=20}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>,
-            PlusCircle: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>,
+            PlusCircle: ({className, size=24}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>,
             MinusCircle: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>,
             Trash2: ({size=20}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>,
+            Edit2: ({size=20, className=""}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>,
             Save: ({size=20}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>,
             Filter: ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>,
             Printer: ({size=18}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>,
             Download: ({size=18}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>,
             HelpCircle: ({size=16, className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>,
             Clock: ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>,
-            Check: ({size=14}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>,
+            Check: ({size=14, className=""}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>,
             Repeat: ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>,
             Calendar: ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>,
             Alert: ({size=24, className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>,
@@ -334,6 +354,11 @@
             const [filterStatus, setFilterStatus] = useState('todos'); // 🚀 NOVO FILTRO AQUI
             const [filterCategory, setFilterCategory] = useState('todos'); // 🚀 NOVO FILTRO DE CONTA
             
+            // --- ESTADOS DE EDIÇÃO E CONFIRMAÇÃO RÁPIDA ---
+            const [editingId, setEditingId] = useState(null);
+            const [quickConfirmTx, setQuickConfirmTx] = useState(null);
+            const [quickConfirmAmount, setQuickConfirmAmount] = useState('');
+
             useEffect(() => {
                 handlePeriodChange({ target: { value: 'current_month' } });
             }, []);
@@ -370,7 +395,19 @@
                 if (!newDesc || !newAmount) return;
                 const baseAmount = parseFloat(newAmount);
 
-                if (isInstallment && installments > 1) {
+                if (editingId) {
+                    // Modo Edição: Atualiza o lançamento existente
+                    saveTransactionToCloud({
+                        id: editingId,
+                        description: newDesc,
+                        amount: baseAmount,
+                        type: newType,
+                        status: newStatus,
+                        category: newCategory,
+                        date: newDate
+                    });
+                    setEditingId(null);
+                } else if (isInstallment && installments > 1) {
                     const [year, month, day] = newDate.split('-').map(Number);
                     for (let i = 0; i < installments; i++) {
                         const currentMonthIndex = month - 1 + i;
@@ -409,6 +446,26 @@
                 setInstallments(2);
             };
 
+            const handleEdit = (t) => {
+                setNewDesc(t.description);
+                setNewAmount(t.amount.toString());
+                setNewType(t.type);
+                setNewStatus(t.status);
+                setNewCategory(t.category || 'Geral');
+                setNewDate(t.date);
+                setEditingId(t.id);
+                setIsInstallment(false); // Desativa parcelamento na edição
+                window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola pro topo suavemente
+            };
+
+            const cancelEdit = () => {
+                setEditingId(null);
+                setNewDesc('');
+                setNewAmount('');
+                setNewCategory('Caixa da Empresa');
+                setNewDate(new Date().toISOString().split('T')[0]);
+            };
+
             const removeTransaction = (id) => {
                 showConfirm('Tem certeza que deseja excluir este lançamento?', () => {
                     deleteTransactionFromCloud(id);
@@ -418,7 +475,26 @@
             const toggleStatus = (id) => {
                 const transaction = transactions.find(t => t.id === id);
                 if(transaction) {
-                    saveTransactionToCloud({ ...transaction, status: transaction.status === 'pago' ? 'agendado' : 'pago' });
+                    if (transaction.status === 'agendado') {
+                        // Abre o modal inteligente para confirmar o valor pago
+                        setQuickConfirmTx(transaction);
+                        setQuickConfirmAmount(transaction.amount.toString());
+                    } else {
+                        // Volta para agendado direto
+                        saveTransactionToCloud({ ...transaction, status: 'agendado' });
+                    }
+                }
+            };
+
+            const handleQuickConfirm = () => {
+                if(quickConfirmTx && quickConfirmAmount) {
+                    saveTransactionToCloud({
+                        ...quickConfirmTx,
+                        status: 'pago',
+                        amount: parseFloat(quickConfirmAmount)
+                    });
+                    setQuickConfirmTx(null);
+                    setQuickConfirmAmount('');
                 }
             };
 
@@ -726,7 +802,7 @@
                                 className="hidden md:flex items-center gap-2 text-[#F59425] hover:text-white transition-colors bg-[#05121d] px-3 py-1.5 rounded-full border border-[#F59425]/30 text-sm font-bold print:hidden"
                             >
                                 <Icons.BookOpen size={16} />
-                                Ajuda / Backup
+                                Ajuda / Manual
                             </button>
                             <div className="text-right">
                                 <p className="text-sm text-slate-400 print:text-black">Saldo Real (Caixa)</p>
@@ -780,7 +856,9 @@
                                 </div>
 
                                 <div className="bg-[#0F3555] p-5 rounded-lg mb-6 border border-[#F59425]/20 shadow-lg no-print">
-                                    <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase flex items-center gap-2"><Icons.PlusCircle className="w-4 h-4 text-[#F59425]" /> Novo Lançamento</h3>
+                                    <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase flex items-center gap-2">
+                                        {editingId ? <><Icons.Edit2 size={16} className="text-[#F59425]" /> Editar Lançamento</> : <><Icons.PlusCircle className="w-4 h-4 text-[#F59425]" /> Novo Lançamento</>}
+                                    </h3>
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
                                         <div className="md:col-span-2">
@@ -821,13 +899,13 @@
                                         </div>
                                         
                                         <div className="md:col-span-6 flex items-center gap-4 bg-[#05121d] p-2 rounded border border-slate-700 mt-1 md:mt-4 h-[42px]">
-                                            <label className="flex items-center gap-2 cursor-pointer text-sm text-white select-none">
-                                                <input type="checkbox" className="custom-checkbox rounded" checked={isInstallment} onChange={(e) => setIsInstallment(e.target.checked)} />
+                                            <label className={`flex items-center gap-2 cursor-pointer text-sm text-white select-none ${editingId ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                <input type="checkbox" className="custom-checkbox rounded" checked={isInstallment} onChange={(e) => !editingId && setIsInstallment(e.target.checked)} disabled={!!editingId} />
                                                 <Icons.Repeat size={16} />
                                                 Repetir / Parcelar?
                                             </label>
                                             
-                                            {isInstallment && (
+                                            {isInstallment && !editingId && (
                                                 <div className="flex items-center gap-2 fade-in">
                                                     <span className="text-xs text-slate-400">Qtd. Meses:</span>
                                                     <input 
@@ -841,14 +919,21 @@
                                             )}
                                         </div>
 
-                                        <div className="md:col-span-12 mt-2">
-                                            <button onClick={addTransaction} className="w-full bg-[#F59425] text-white p-3 rounded hover:bg-orange-600 flex justify-center items-center gap-2 shadow-[0_0_10px_#F59425] transition-all font-bold text-sm uppercase"><Icons.Save size={18} /> Adicionar Lançamento</button>
+                                        <div className="md:col-span-12 mt-2 flex gap-2">
+                                            <button onClick={addTransaction} className="flex-1 bg-[#F59425] text-white p-3 rounded hover:bg-orange-600 flex justify-center items-center gap-2 shadow-[0_0_10px_#F59425] transition-all font-bold text-sm uppercase">
+                                                <Icons.Save size={18} /> {editingId ? 'Salvar Alterações' : 'Adicionar Lançamento'}
+                                            </button>
+                                            {editingId && (
+                                                <button onClick={cancelEdit} className="bg-slate-700 text-white p-3 rounded hover:bg-slate-600 transition-all font-bold text-sm uppercase px-6">
+                                                    Cancelar
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* --- TABELA COM ROLAGEM INFINITA E CABEÇALHO CONGELADO --- */}
-                                <div className="overflow-x-auto overflow-y-auto max-h-[500px] rounded-lg border border-[#F59425]/20 relative">
+                                <div className="overflow-x-auto overflow-y-auto max-h-[500px] rounded-lg border border-[#F59425]/20 relative custom-scrollbar">
                                     <table className="w-full text-left text-sm text-slate-300">
                                         <thead className="bg-[#05121d] text-slate-400 uppercase font-semibold sticky top-0 z-10 shadow-md">
                                             <tr className="border-b border-[#F59425]/20">
@@ -856,12 +941,12 @@
                                                 <th className="p-3">Descrição</th>
                                                 <th className="p-3 text-center">Status</th>
                                                 <th className="p-3 text-right">Valor</th>
-                                                <th className="p-3 text-center w-16 no-print">X</th>
+                                                <th className="p-3 text-center w-16 no-print">Ações</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[#F59425]/10">
                                             {[...transactions].sort((a,b) => b.date.localeCompare(a.date)).map((t) => (
-                                                <tr key={t.id} className={`hover:bg-[#05121d]/50 ${t.status === 'agendado' ? 'opacity-70 italic' : ''}`}>
+                                                <tr key={t.id} className={`hover:bg-[#05121d]/50 transition-colors ${t.status === 'agendado' ? 'opacity-70 italic' : ''}`}>
                                                     <td className="p-3 whitespace-nowrap">{formatDate(t.date)}</td>
                                                     <td className="p-3 font-medium text-white">
                                                         {t.description}
@@ -869,14 +954,17 @@
                                                             {t.category || 'Geral'}
                                                         </span>
                                                     </td>
-                                                    <td className="p-3 text-center cursor-pointer" onClick={() => toggleStatus(t.id)} title="Clique para alterar status">
+                                                    <td className="p-3 text-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => toggleStatus(t.id)} title="Clique para alterar status">
                                                         {t.status === 'pago' 
                                                             ? <span className="bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded text-xs border border-emerald-800">Pago</span> 
-                                                            : <span className="bg-orange-900/50 text-orange-400 px-2 py-1 rounded text-xs border border-orange-800 flex items-center justify-center gap-1"><Icons.Clock size={10} /> Futuro</span>
+                                                            : <span className="bg-orange-900/50 text-orange-400 px-2 py-1 rounded text-xs border border-orange-800 flex items-center justify-center gap-1 w-max mx-auto"><Icons.Clock size={10} /> Futuro</span>
                                                         }
                                                     </td>
                                                     <td className={`p-3 text-right font-bold ${t.type === 'entrada' ? 'text-emerald-400' : 'text-red-400'}`}>{t.type === 'entrada' ? '+' : '-'} R$ {Number(t.amount).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                                                    <td className="p-3 text-center no-print"><button onClick={() => removeTransaction(t.id)} className="text-slate-500 hover:text-red-400"><Icons.Trash2 size={16} /></button></td>
+                                                    <td className="p-3 text-center no-print whitespace-nowrap">
+                                                        <button onClick={() => handleEdit(t)} className="text-slate-400 hover:text-[#F59425] mr-3 transition-colors" title="Editar"><Icons.Edit2 size={16} /></button>
+                                                        <button onClick={() => removeTransaction(t.id)} className="text-slate-500 hover:text-red-400 transition-colors" title="Excluir"><Icons.Trash2 size={16} /></button>
+                                                    </td>
                                                 </tr>
                                             ))}
                                             {transactions.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-slate-500">Nenhum lançamento.</td></tr>}
@@ -976,10 +1064,10 @@
                                 </div>
 
                                 <table className="w-full text-left text-sm mb-6 text-slate-300">
-                                    <thead><tr className="border-b-2 border-[#F59425]/10"><th className="py-2">Data</th><th className="py-2">Descrição</th><th className="py-2 text-center">Status</th><th className="py-2 text-right">Valor</th></tr></thead>
+                                    <thead><tr className="border-b-2 border-[#F59425]/10"><th className="py-2">Data</th><th className="py-2">Descrição</th><th className="py-2 text-center">Status</th><th className="py-2 text-right">Valor</th><th className="py-2 text-center no-print">Ações</th></tr></thead>
                                     <tbody className="divide-y divide-[#F59425]/10">
                                         {filteredData.map((t) => (
-                                            <tr key={t.id}>
+                                            <tr key={t.id} className={`hover:bg-[#05121d]/50 transition-colors ${t.status === 'agendado' ? 'opacity-70 italic' : ''}`}>
                                                 <td className="py-2 text-slate-400">{formatDate(t.date)}</td>
                                                 <td className="py-2 text-white">
                                                     {t.description}
@@ -987,12 +1075,20 @@
                                                         {t.category || 'Geral'}
                                                     </span>
                                                 </td>
-                                                <td className="py-2 text-center">
-                                                    {t.status === 'pago' ? <span className="text-emerald-500 text-xs">Pago</span> : <span className="text-orange-400 text-xs italic">Previsto</span>}
+                                                <td className="py-2 text-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => toggleStatus(t.id)} title="Clique para alterar status">
+                                                    {t.status === 'pago' 
+                                                        ? <span className="bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded text-xs border border-emerald-800">Pago</span> 
+                                                        : <span className="bg-orange-900/50 text-orange-400 px-2 py-1 rounded text-xs border border-orange-800 flex items-center justify-center gap-1 w-max mx-auto"><Icons.Clock size={10} /> Futuro</span>
+                                                    }
                                                 </td>
-                                                <td className="py-2 text-right font-medium text-slate-200">R$ {Number(t.amount).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                                                <td className={`py-2 text-right font-medium ${t.type === 'entrada' ? 'text-emerald-400' : 'text-red-400'}`}>{t.type === 'entrada' ? '+' : '-'} R$ {Number(t.amount).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                                                <td className="py-2 text-center no-print whitespace-nowrap">
+                                                    <button onClick={() => { setActiveTab('caixa'); handleEdit(t); }} className="text-slate-400 hover:text-[#F59425] mr-3 transition-colors" title="Editar"><Icons.Edit2 size={16} /></button>
+                                                    <button onClick={() => removeTransaction(t.id)} className="text-slate-500 hover:text-red-400 transition-colors" title="Excluir"><Icons.Trash2 size={16} /></button>
+                                                </td>
                                             </tr>
                                         ))}
+                                        {filteredData.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-slate-500">Nenhum lançamento encontrado neste filtro.</td></tr>}
                                     </tbody>
                                 </table>
 
@@ -1181,6 +1277,34 @@
                         </div>
                     )}
                     
+                    {/* --- MODAL: CONFIRMAÇÃO RÁPIDA DE VALOR --- */}
+                    {quickConfirmTx && (
+                        <div className="fixed inset-0 z-[65] flex items-center justify-center p-4 bg-[#05121d]/90 backdrop-blur-md animate-pop">
+                            <div className="bg-[#0F3555] p-6 rounded-xl border border-[#F59425] shadow-[0_0_20px_rgba(245,148,37,0.3)] max-w-sm w-full text-center relative">
+                                <h3 className="text-lg font-bold text-white mb-2">Confirmar {quickConfirmTx.type === 'entrada' ? 'Recebimento' : 'Pagamento'}</h3>
+                                <p className="text-slate-300 text-sm mb-4">O valor exato foi diferente da previsão?</p>
+                                
+                                <div className="relative mb-6 text-left max-w-[200px] mx-auto">
+                                    <span className="absolute left-3 top-3 text-[#F59425] font-bold">R$</span>
+                                    <input 
+                                        type="number" 
+                                        className="w-full p-3 pl-10 rounded bg-[#05121d] border border-[#F59425] text-white text-lg font-bold focus:shadow-[0_0_10px_rgba(245,148,37,0.3)] text-center" 
+                                        value={quickConfirmAmount} 
+                                        onChange={(e) => setQuickConfirmAmount(e.target.value)} 
+                                        autoFocus
+                                    />
+                                </div>
+                                
+                                <div className="flex gap-3 justify-center">
+                                    <button onClick={() => { setQuickConfirmTx(null); setQuickConfirmAmount(''); }} className="px-4 py-2 rounded-lg border border-slate-500 text-slate-300 hover:bg-[#05121d] font-medium">Manter Agendado</button>
+                                    <button onClick={handleQuickConfirm} className="px-6 py-2 rounded-lg bg-[#F59425] text-white font-bold hover:bg-orange-600 shadow-[0_0_10px_rgba(245,148,37,0.5)] flex items-center gap-2">
+                                        <Icons.Check size={16} /> Confirmar Pago
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* --- MODAL DE ATUALIZAÇÃO E MIGRAÇÃO --- */}
                     {updateModal && (
                         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-[#05121d]/95 backdrop-blur-md animate-pop">
@@ -1225,71 +1349,97 @@
                         </div>
                     )}
 
-                    {/* --- MODAL DE AJUDA & BACKUP --- */}
+                    {/* --- 🚀 MODAL DE AJUDA / MANUAL ATUALIZADO --- */}
                     {isHelpOpen && (
                         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#05121d]/90 backdrop-blur-md animate-pop">
-                            <div className="bg-[#0F3555] w-full max-w-2xl h-[80vh] rounded-xl border border-[#0F3555] shadow-2xl flex flex-col relative overflow-hidden">
+                            <div className="bg-[#0F3555] w-full max-w-2xl h-[85vh] rounded-xl border border-[#0F3555] shadow-2xl flex flex-col relative overflow-hidden">
                                 
                                 {/* Cabeçalho do Modal */}
-                                <div className="p-4 border-b border-[#F59425]/30 flex justify-between items-center bg-[#05121d]">
-                                    <h3 className="font-bold text-white flex items-center gap-2">
-                                        <Icons.HelpCircle size={20} className="text-[#F59425]" /> 
-                                        Manual & Segurança
+                                <div className="p-5 border-b border-[#F59425]/30 flex justify-between items-center bg-[#05121d]">
+                                    <h3 className="font-bold text-white flex items-center gap-2 text-lg">
+                                        <Icons.HelpCircle size={22} className="text-[#F59425]" /> 
+                                        Manual do Aplicativo
                                     </h3>
-                                    <button onClick={() => setIsHelpOpen(false)} className="text-slate-400 hover:text-white transition-colors">
-                                        <Icons.X size={24} />
+                                    <button onClick={() => setIsHelpOpen(false)} className="text-slate-400 hover:text-white transition-colors bg-slate-800/50 p-1.5 rounded-lg hover:bg-red-500/80">
+                                        <Icons.X size={20} />
                                     </button>
                                 </div>
 
-                                {/* Conteúdo do Manual */}
-                                <div className="p-6 overflow-y-auto text-slate-300 leading-relaxed text-sm flex-1">
+                                {/* Conteúdo do Manual Reformulado */}
+                                <div className="p-6 overflow-y-auto text-slate-300 leading-relaxed text-sm flex-1 space-y-8 custom-scrollbar">
                                     
-                                    <div className="mb-6">
-                                        <h4 className="text-[#F59425] font-bold text-lg mb-2 flex items-center gap-2">
-                                            <Icons.DollarSign size={18} /> 1. FLUXO DE CAIXA & CONTAS
+                                    {/* 1. FLUXO DE CAIXA E EDIÇÃO RÁPIDA */}
+                                    <div>
+                                        <h4 className="text-[#F59425] font-bold text-lg mb-3 flex items-center gap-2 border-b border-slate-700 pb-2">
+                                            <Icons.DollarSign size={18} /> 1. O SEU CAIXA DIÁRIO
                                         </h4>
-                                        <p className="mb-2">Use esta tela para anotar tudo o que entra e sai da empresa.</p>
-                                        <ul className="list-disc pl-5 space-y-1 mb-3">
-                                            <li><strong>Adicionar Lançamento:</strong> Preencha data, descrição e valor.</li>
-                                            <li><strong>Conta de Alocação:</strong> Defina se a transação é para o "Caixa da Empresa", "Pró-Labore" ou "Fundo de Reserva" para um controle profissional.</li>
-                                            <li><strong>Status:</strong> Escolha "Pago" para dinheiro que já movimentou, ou "Agendado" para contas futuras.</li>
-                                            <li><strong>Repetir/Parcelar:</strong> Marque para criar parcelas automáticas (ex: 10x sem juros ou aluguel mensal).</li>
+                                        <ul className="list-none space-y-3 mb-4">
+                                            <li className="flex items-start gap-2"><Icons.PlusCircle className="text-emerald-400 shrink-0 mt-0.5" size={16} /> <span><strong>Novo Lançamento:</strong> Anote tudo. Se for parcelado ou fixo (ex: aluguel), use a opção "Repetir/Parcelar".</span></li>
+                                            <li className="flex items-start gap-2"><Icons.Edit2 className="text-blue-400 shrink-0 mt-0.5" size={16} /> <span><strong>Edição Mágica:</strong> Errou algo? Clique no <strong>Lápis (✏️)</strong> ao lado da transação na tabela para alterar valor, data ou categoria rapidamente.</span></li>
+                                            <li className="flex items-start gap-2"><Icons.Check className="text-[#F59425] shrink-0 mt-0.5" size={16} /> <span><strong>Baixa Rápida de Conta:</strong> Tem uma conta "Agendada"? Ao pagar, clique em cima da palavra <em>"Futuro"</em> na tabela. O sistema deixará você ajustar os centavos na hora de confirmar!</span></li>
                                         </ul>
                                         <div className="bg-[#05121d] p-3 rounded border border-[#F59425]/20 text-xs">
-                                            <strong>Entendendo os Saldos:</strong><br/>
-                                            • <span className="text-emerald-400">Saldo Real:</span> Dinheiro que você tem HOJE (apenas "Pago").<br/>
-                                            • <span className="text-cyan-400">Saldo Previsto:</span> Visão de futuro (Hoje + Agendado).<br/>
-                                            • <span className="text-orange-400">Saldo do Mês:</span> Lucro ou prejuízo apenas da operação deste mês.
+                                            <strong className="text-white block mb-1">Entendendo os Saldos no topo da tela:</strong>
+                                            <span className="text-emerald-400 font-bold">• Saldo Real:</span> O dinheiro que você tem HOJE (apenas lançamentos "Pagos").<br/>
+                                            <span className="text-orange-400 font-bold">• Saldo do Mês:</span> Mostra se a sua operação Deste Mês está dando lucro ou prejuízo.<br/>
+                                            <span className="text-cyan-400 font-bold">• Previsto (Mês):</span> Soma o que já foi pago com o que ainda vai vencer até o último dia do mês.
                                         </div>
                                     </div>
 
-                                    <div className="mb-6">
-                                        <h4 className="text-[#F59425] font-bold text-lg mb-2 flex items-center gap-2">
-                                            <Icons.FileText size={18} /> 2. RELATÓRIOS
+                                    {/* 2. CONTAS DE ALOCAÇÃO */}
+                                    <div>
+                                        <h4 className="text-[#F59425] font-bold text-lg mb-3 flex items-center gap-2 border-b border-slate-700 pb-2">
+                                            <Icons.BookOpen size={18} /> 2. SEPARANDO O DINHEIRO
                                         </h4>
-                                        <p className="mb-2">Analise a saúde do seu negócio com filtros inteligentes.</p>
-                                        <ul className="list-disc pl-5 space-y-1">
-                                            <li>Use o seletor <strong>"Período"</strong> para ver "Este Mês", "Mês Passado" ou datas personalizadas.</li>
-                                            <li>O card <strong>"Visão Geral (Acumulado)"</strong> mostra o saldo total da história da empresa.</li>
-                                            <li>Use os botões de <strong>Imprimir</strong> ou <strong>Baixar CSV</strong> para salvar seus dados.</li>
+                                        <p className="mb-3">A regra de ouro dos negócios: nunca misture o dinheiro pessoal com o da empresa. Use as categorias de alocação:</p>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                            <div className="bg-[#05121d] p-3 rounded border border-slate-700">
+                                                <strong className="text-white block mb-1">🏢 Caixa da Empresa</strong>
+                                                <span className="text-xs">Para as vendas reais, compras de estoque, fornecedores e impostos.</span>
+                                            </div>
+                                            <div className="bg-[#05121d] p-3 rounded border border-slate-700">
+                                                <strong className="text-white block mb-1">👤 Pró-Labore</strong>
+                                                <span className="text-xs">O seu salário. Toda vez que tirar dinheiro para comprar algo pessoal, use esta conta.</span>
+                                            </div>
+                                            <div className="bg-[#05121d] p-3 rounded border border-slate-700">
+                                                <strong className="text-white block mb-1">🛡️ Reserva</strong>
+                                                <span className="text-xs">O lucro guardado. Dinheiro para emergências ou investimentos futuros.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 3. RELATÓRIOS E FILTROS */}
+                                    <div>
+                                        <h4 className="text-[#F59425] font-bold text-lg mb-3 flex items-center gap-2 border-b border-slate-700 pb-2">
+                                            <Icons.Filter size={18} /> 3. RELATÓRIOS INTELIGENTES
+                                        </h4>
+                                        <p className="mb-2">Na aba de Relatórios, você tem 4 filtros poderosos para cruzar informações e ter visão de Raio-X:</p>
+                                        <ul className="list-disc pl-5 space-y-2 mb-3 text-slate-300 bg-[#05121d] p-3 rounded border border-slate-800">
+                                            <li><strong>Como ver Contas a Pagar?</strong> Filtre por <em>Tipo: Saídas</em> + <em>Status: Agendados</em>.</li>
+                                            <li><strong>Como ver o meu salário retirado?</strong> Filtre por <em>Conta: Pró-Labore</em> no <em>Período: Este Mês</em>.</li>
+                                            <li><strong>Visão Geral (Acumulado):</strong> O cartão principal te mostra a saúde financeira de toda a vida da sua empresa, desde o dia 1.</li>
                                         </ul>
+                                        <p className="text-xs italic text-slate-400">Dica de gestão: Exporte os dados em Planilha (botão Baixar CSV) no último dia do mês para enviar ao seu contador.</p>
                                     </div>
 
-                                    <div className="mb-6">
-                                        <h4 className="text-[#F59425] font-bold text-lg mb-2 flex items-center gap-2">
-                                            <Icons.Calculator size={18} /> 3. PREÇO JUSTO (RAIO-X)
+                                    {/* 4. PREÇO JUSTO */}
+                                    <div>
+                                        <h4 className="text-[#F59425] font-bold text-lg mb-3 flex items-center gap-2 border-b border-slate-700 pb-2">
+                                            <Icons.Calculator size={18} /> 4. CALCULADORA DE PREÇO
                                         </h4>
-                                        <p className="mb-2">Descubra se está cobrando o valor certo.</p>
-                                        <ol className="list-decimal pl-5 space-y-2">
-                                            <li><strong>Valor da Hora:</strong> Defina seu salário desejado e horas de trabalho.</li>
-                                            <li><strong>Custo de Produção:</strong> Some materiais + tempo gasto por produto.</li>
-                                            <li><strong>Venda:</strong> Coloque impostos, taxas e a margem de lucro líquido que deseja.</li>
+                                        <p className="mb-2">Descubra exatamente quanto cobrar para não ter prejuízos:</p>
+                                        <ol className="list-decimal pl-5 space-y-1 text-slate-300">
+                                            <li>Defina o seu salário desejado e suas horas de trabalho diárias. O app descobre o <strong>Valor da sua Hora</strong>.</li>
+                                            <li>Some os Materiais diretos + Tempo Gasto com o cliente para achar o <strong>Custo Base</strong>.</li>
+                                            <li>Adicione Impostos, Taxas da maquininha e a Margem de Lucro que você quer colocar no bolso.</li>
                                         </ol>
-                                        <p className="mt-2 text-xs italic">O "Raio-X" mostrará o preço ideal de venda e o preço mínimo (sem lucro) para não ter prejuízo.</p>
+                                        <p className="mt-3 text-xs text-[#F59425] font-bold bg-orange-900/20 p-2 rounded border border-orange-900/50">
+                                            O painel mostrará o seu preço ideal de venda e o seu Preço Mínimo (ponto de equilíbrio). Nunca venda abaixo do mínimo!
+                                        </p>
                                     </div>
 
-                                    <div className="border-t border-slate-700 pt-4 mt-4 text-center text-xs text-slate-500">
-                                        <p>Seus dados são sincronizados automaticamente em nuvem de forma segura.</p>
+                                    <div className="border-t border-[#F59425]/30 pt-4 mt-6 text-center text-xs text-slate-500">
+                                        <p>Seus dados são criptografados e sincronizados automaticamente na nuvem segura do Google.</p>
                                     </div>
                                 </div>
                                 
@@ -1297,17 +1447,17 @@
                                 <div className="p-4 bg-[#05121d] border-t border-[#F59425]/30 text-center flex flex-col gap-3">
                                     <button 
                                         onClick={() => setIsHelpOpen(false)}
-                                        className="bg-[#F59425] text-white w-full px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors font-bold shadow-[0_0_10px_#F59425]"
+                                        className="bg-[#F59425] text-white w-full px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-bold shadow-[0_0_15px_rgba(245,148,37,0.4)] text-sm"
                                     >
-                                        Entendi, vamos lucrar!
+                                        Voltar para a Gestão 🚀
                                     </button>
                                     
-                                    <div className="flex justify-center gap-4 mt-2 border-t border-slate-700 pt-4">
-                                        <button onClick={handleExportBackup} className="text-xs text-slate-400 hover:text-white underline flex items-center gap-1">
-                                            <Icons.Download size={14} /> Exportar Backup (Segurança)
+                                    <div className="flex justify-center gap-6 mt-2 border-t border-slate-800 pt-4">
+                                        <button onClick={handleExportBackup} className="text-xs text-slate-400 hover:text-white underline flex items-center gap-1 transition-colors">
+                                            <Icons.Download size={14} /> Fazer Backup (Download)
                                         </button>
-                                        <label className="text-xs text-slate-400 hover:text-[#F59425] underline flex items-center gap-1 cursor-pointer">
-                                            <Icons.Repeat size={14} /> Importar para a Nuvem
+                                        <label className="text-xs text-slate-400 hover:text-[#F59425] underline flex items-center gap-1 cursor-pointer transition-colors">
+                                            <Icons.Repeat size={14} /> Restaurar Backup Antigo
                                             <input type="file" accept=".json" className="hidden" onChange={handleImportBackup} />
                                         </label>
                                     </div>
