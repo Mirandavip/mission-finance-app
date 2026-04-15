@@ -205,7 +205,7 @@
                 try {
                     // 🛑 BARREIRA DE SEGURANÇA: Verifica o código ANTES de qualquer coisa!
                     if (!isLoginMode) {
-                        const validCodes = ['ADMIRA2026', 'CLIENTE-VIP']; // Seus códigos secretos
+                        const validCodes = ['ADMIRA2026', 'CLIENTE-VIP', 'VIP30DIAS']; // Seus códigos secretos
                         
                         if (!validCodes.includes(authCode.toUpperCase().trim())) {
                             showAlert('Código de Ativação inválido. Verifique o código na área de membros ou contate o suporte.');
