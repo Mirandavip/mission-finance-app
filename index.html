@@ -205,7 +205,7 @@
                 try {
                     // 🛑 BARREIRA DE SEGURANÇA: Verifica o código ANTES de qualquer coisa!
                     if (!isLoginMode) {
-                        const validCodes = ['ADMIRA2026', 'CLIENTE-VIP', 'VIP30DIAS']; // Seus códigos secretos
+                        const validCodes = ['ADMIRA2026', 'CLIENTE-VIP']; // Seus códigos secretos
                         
                         if (!validCodes.includes(authCode.toUpperCase().trim())) {
                             showAlert('Código de Ativação inválido. Verifique o código na área de membros ou contate o suporte.');
@@ -788,10 +788,10 @@
                             </h1>
                             <p className="text-slate-400 text-sm mt-1 print:hidden">Controle Financeiro & Precificação</p>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 md:gap-4">
                             <button 
                                 onClick={() => showConfirm("Deseja realmente sair da sua conta?", handleLogout)}
-                                className="hidden md:flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors bg-[#05121d] px-3 py-1.5 rounded-full border border-slate-700 text-sm font-bold print:hidden"
+                                className="flex items-center text-slate-400 hover:text-red-400 transition-colors bg-[#05121d] px-2 md:px-3 py-1.5 rounded-full border border-slate-700 text-xs md:text-sm font-bold print:hidden"
                                 title="Sair da Conta"
                             >
                                 Sair
@@ -799,14 +799,15 @@
                             
                             <button 
                                 onClick={() => setIsHelpOpen(true)}
-                                className="hidden md:flex items-center gap-2 text-[#F59425] hover:text-white transition-colors bg-[#05121d] px-3 py-1.5 rounded-full border border-[#F59425]/30 text-sm font-bold print:hidden"
+                                className="flex items-center gap-1 md:gap-2 text-[#F59425] hover:text-white transition-colors bg-[#05121d] px-2 md:px-3 py-1.5 rounded-full border border-[#F59425]/30 text-xs md:text-sm font-bold print:hidden"
                             >
-                                <Icons.BookOpen size={16} />
-                                Ajuda / Manual
+                                <Icons.BookOpen size={14} className="hidden md:block" />
+                                <span className="hidden md:inline">Ajuda / Manual</span>
+                                <span className="md:hidden">Ajuda</span>
                             </button>
-                            <div className="text-right">
-                                <p className="text-sm text-slate-400 print:text-black">Saldo Real (Caixa)</p>
-                                <p className={`text-2xl font-bold ${saldo >= 0 ? 'text-emerald-400' : 'text-red-400'} print:text-black`}>
+                            <div className="text-right ml-1 md:ml-0">
+                                <p className="text-[10px] md:text-sm text-slate-400 print:text-black">Saldo <span className="hidden md:inline">Real (Caixa)</span></p>
+                                <p className={`text-base md:text-2xl font-bold ${saldo >= 0 ? 'text-emerald-400' : 'text-red-400'} print:text-black`}>
                                     R$ {saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 </p>
                             </div>
